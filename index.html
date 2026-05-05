@@ -1018,6 +1018,8 @@ window.updateCurSel=()=>{
 const EJS_SVC = 'service_pdla1rj';
 const EJS_TPL = 'template_4fvnwxk';
 const EJS_KEY = '9l3b5ZWmgWALrnV9z';
+// تهيئة EmailJS مرة واحدة
+window.addEventListener('load', () => { if(typeof emailjs !== 'undefined') emailjs.init(EJS_KEY); });
 
 let pendingReg = null; // بيانات التسجيل المعلقة
 let verifyCodeSent = ''; // الرمز المرسل
@@ -1032,14 +1034,15 @@ function showVerify(){
 function hideVerify(){ document.getElementById('verifyScreen').style.display='none'; }
 
 async function sendVerifyEmail(email, code){
+  if(typeof emailjs === 'undefined') throw new Error('EmailJS غير محمل');
   emailjs.init(EJS_KEY);
-  return emailjs.send(EJS_SVC, EJS_TPL, {
+  const result = await emailjs.send(EJS_SVC, EJS_TPL, {
     to_email: email,
     to_name: pendingReg?.name || '',
     code: code,
-    message: `رمز التحقق الخاص بك هو: ${code}
-صالح لمدة 10 دقائق.`
+    message: `رمز التحقق الخاص بك هو: ${code} - صالح لمدة 10 دقائق.`
   });
+  return result;
 }
 
 window.doRegister = async () => {
