@@ -481,6 +481,22 @@ textarea{resize:vertical;min-height:60px;}
       <div id="tgStatus" style="font-size:0.78rem;margin-top:8px;text-align:center;min-height:16px;"></div>
     </div>
 
+    <!-- سعر صرف USDT -->
+    <div class="adm-form" style="margin-bottom:14px;">
+      <div class="sec-title">💵 سعر صرف USDT</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:11px;">يُستخدم لعرض الأسعار للزبائن الذين اختاروا USDT كعملة</div>
+      <div class="fg" style="margin-bottom:9px;">
+        <label>1 USDT = كم دينار ليبي؟</label>
+        <input type="number" id="usdtRateInput" placeholder="مثال: 7.5" min="0.01" step="0.01">
+      </div>
+      <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;">
+        <span style="font-size:0.8rem;color:var(--muted);">السعر الحالي: </span>
+        <span id="curRateDisplay" style="font-family:'Orbitron',sans-serif;color:var(--cyan);font-size:1rem;font-weight:700;">—</span>
+        <span style="font-size:0.78rem;color:var(--muted);"> د.ل / USDT</span>
+      </div>
+      <button onclick="saveUsdtRate()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ السعر</button>
+    </div>
+
     <div class="adm-form" id="pendingSection">
       <div class="sec-title">⏳ طلبات التسجيل المعلقة</div>
       <div id="pendingList"></div>
@@ -753,7 +769,7 @@ textarea{resize:vertical;min-height:60px;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, setDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzz3r0z6RTxxj15xBrhXp5avHSPvp_XXs",
@@ -787,19 +803,28 @@ function resetFails(){setLiState({n:0});}
 const ADMIN_EMAIL = 'abadah@admin.com';
 
 let services=[], clients=[], orders=[], regs=[];
-let usdtRate = 5; // سعر افتراضي 1 USDT = 5 د.ل
+let usdtRate = 5; // سعر افتراضي
 
-// جلب سعر الصرف USDT/LYD
-async function fetchUsdtRate(){
+async function loadUsdtRate(){
   try{
-    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=usd');
-    const d=await r.json();
-    // سعر تقريبي: 1 USD ≈ 4.85 د.ل (ثابت نسبياً)
-    const usdLyd=4.85;
-    usdtRate=usdLyd; // 1 USDT ≈ 1 USD ≈ 4.85 د.ل
+    const snap=await getDocs(query(collection(db,'config')));
+    snap.forEach(d=>{ if(d.id==='usdtRate') usdtRate=d.data().rate||5; });
+    const el=document.getElementById('curRateDisplay');
+    if(el) el.textContent=usdtRate;
+    const inp=document.getElementById('usdtRateInput');
+    if(inp) inp.value=usdtRate;
   }catch(e){ usdtRate=5; }
 }
-fetchUsdtRate();
+
+window.saveUsdtRate=async()=>{
+  const val=parseFloat(document.getElementById('usdtRateInput').value);
+  if(!val||val<=0){alert('يرجى إدخال سعر صحيح');return;}
+  await setDoc(doc(db,'config','usdtRate'),{rate:val});
+  usdtRate=val;
+  document.getElementById('curRateDisplay').textContent=val;
+  alert('✅ تم حفظ سعر الصرف: 1 USDT = '+val+' د.ل');
+  renderServices();
+};
 let currentUser=null, currentSvc=null, currentChgClient=null;
 let activeCat='', pinInput='', adminUnlocked=false;
 
@@ -825,6 +850,7 @@ function showApp(){
   document.getElementById('clientsTab').style.display = isAdmin ? 'flex' : 'none';
   updateUserBar();
   loadRealtime();
+  loadUsdtRate();
 }
 
 // ===== SESSION =====
@@ -1035,7 +1061,7 @@ window.switchTab = t => {
   if(t==='account'){updateUserBar();renderMyOrders();}
   if(t==='dashboard'){setTimeout(()=>updateDashboard(),100);}
   if(t==='clients'){renderClientsTab();}
-  if(t==='admin'){loadTgConfig();renderAdmin();renderClients();renderAllOrders();renderPending();}
+  if(t==='admin'){loadTgConfig();loadUsdtRate();renderAdmin();renderClients();renderAllOrders();renderPending();}
 };
 
 window.setCategory=(btn,cat)=>{
