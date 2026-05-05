@@ -1712,13 +1712,18 @@ window.confirmCharge=async()=>{
     if(!amtLYD||amtLYD<=0){alert('يرجى إدخال مبلغ صحيح');return;}
   }
   const newBal = parseFloat(((currentChgClient.balance||0) + amtLYD).toFixed(2));
-  await updateDoc(doc(db,'clients',currentChgClient.fid),{balance:newBal});
+  const newBalUSDT = parseFloat((newBal / usdtRate).toFixed(4));
 
-  // تحديث الرصيد فوراً في الذاكرة
+  // حفظ كلا الرصيدين في Firebase
+  await updateDoc(doc(db,'clients',currentChgClient.fid),{balance:newBal, balanceUSDT:newBalUSDT});
+
+  // تحديث الذاكرة المحلية فوراً
   const ci = clients.findIndex(c=>c.fid===currentChgClient.fid);
-  if(ci>-1) clients[ci].balance = newBal;
-  currentChgClient.balance = newBal;
-  if(currentUser && currentUser.fid===currentChgClient.fid) currentUser.balance=newBal;
+  if(ci>-1){ clients[ci].balance=newBal; clients[ci].balanceUSDT=newBalUSDT; }
+  currentChgClient.balance=newBal; currentChgClient.balanceUSDT=newBalUSDT;
+  if(currentUser && currentUser.fid===currentChgClient.fid){
+    currentUser.balance=newBal; currentUser.balanceUSDT=newBalUSDT;
+  }
 
   // تحديث الواجهة فوراً
   updateUserBar();
@@ -1726,7 +1731,7 @@ window.confirmCharge=async()=>{
 
   document.getElementById('chargeMo').classList.remove('open');
   if(isUSDT){
-    alert(`✅ تم شحن ${amtUSDT} USDT (${amtLYD} د.ل) لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBal} د.ل`);
+    alert(`✅ تم شحن ${amtUSDT} USDT (${amtLYD} د.ل) لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBalUSDT.toFixed(2)} USDT`);
   } else {
     alert(`✅ تم شحن ${amtLYD} د.ل لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBal} د.ل`);
   }
