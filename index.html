@@ -1170,8 +1170,10 @@ window.confirmOrder = async () => {
   const qty=parseInt(document.getElementById('oQty').value)||1;
   const totalLYD=s.price*qty;
   const totalUSDT=parseFloat((totalLYD/usdtRate).toFixed(4));
-  const bal=cur==='USDT'?(me.balanceUSDT||0):(me.balance||0);
+  const balLYD=me.balance||0;
+  const balUSDT=parseFloat((balLYD/usdtRate).toFixed(2));
   const total=cur==='USDT'?totalUSDT:totalLYD;
+  const bal=cur==='USDT'?balUSDT:balLYD;
   const after=parseFloat((bal-total).toFixed(4));
   if(after<0){alert('⚠️ رصيدك غير كافٍ');return;}
 
@@ -1195,7 +1197,8 @@ window.confirmOrder = async () => {
   btn.disabled=true; btn.textContent='جاري الإرسال...';
 
   try {
-    const updateData=cur==='USDT'?{balanceUSDT:after}:{balance:after};
+  const afterLYD=cur==='USDT'?parseFloat((after*usdtRate).toFixed(2)):after;
+    const updateData={balance:afterLYD};
     await updateDoc(doc(db,'clients',me.fid),updateData);
     const note=document.getElementById('oNote').value.trim();
     const t=Date.now();
