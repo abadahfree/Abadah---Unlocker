@@ -1713,6 +1713,17 @@ window.confirmCharge=async()=>{
   }
   const newBal = parseFloat(((currentChgClient.balance||0) + amtLYD).toFixed(2));
   await updateDoc(doc(db,'clients',currentChgClient.fid),{balance:newBal});
+
+  // تحديث الرصيد فوراً في الذاكرة
+  const ci = clients.findIndex(c=>c.fid===currentChgClient.fid);
+  if(ci>-1) clients[ci].balance = newBal;
+  currentChgClient.balance = newBal;
+  if(currentUser && currentUser.fid===currentChgClient.fid) currentUser.balance=newBal;
+
+  // تحديث الواجهة فوراً
+  updateUserBar();
+  renderClients();
+
   document.getElementById('chargeMo').classList.remove('open');
   if(isUSDT){
     alert(`✅ تم شحن ${amtUSDT} USDT (${amtLYD} د.ل) لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBal} د.ل`);
