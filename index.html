@@ -1060,7 +1060,13 @@ window.doRegister = async () => {
     verifyCodeSent = code;
     verifyExpiry = Date.now() + 10*60*1000; // 10 دقائق
 
-    await sendVerifyEmail(email, code);
+    try {
+      await sendVerifyEmail(email, code);
+    } catch(ejsErr) {
+      document.getElementById('regErr').textContent = 'خطأ EmailJS: ' + (ejsErr?.text || ejsErr?.message || JSON.stringify(ejsErr));
+      btn.textContent='📤 إرسال طلب التسجيل'; btn.disabled=false;
+      return;
+    }
 
     document.getElementById('verifyEmailShow').textContent = email;
     document.getElementById('verifyErr').textContent = '';
