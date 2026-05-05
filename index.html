@@ -727,7 +727,9 @@ textarea{resize:vertical;min-height:60px;}
       <div style="font-size:0.76rem;color:var(--muted);margin-bottom:4px;">الرصيد الحالي</div>
       <div id="chgCurr" style="font-family:'Orbitron',sans-serif;font-size:1.7rem;font-weight:700;color:var(--gold);">0 <small style="font-family:'Tajawal',sans-serif;font-size:0.78rem;color:var(--muted);">د.ل</small></div>
     </div>
-    <div class="fg" style="margin-bottom:11px;text-align:right;"><label>المبلغ (د.ل)</label><input type="number" id="chgAmt" placeholder="100" min="1" style="text-align:center;font-size:1.05rem;"></div>
+    <div id="chgLYDBox" class="fg" style="margin-bottom:8px;text-align:right;"><label>المبلغ (د.ل)</label><input type="number" id="chgAmt" placeholder="100" min="1" style="text-align:center;font-size:1.05rem;"></div>
+    <div id="chgUSDTBox" class="fg" style="margin-bottom:8px;text-align:right;display:none;"><label>المبلغ (USDT)</label><input type="number" id="chgAmtUSDT" placeholder="10" min="0.01" step="0.01" style="text-align:center;font-size:1.05rem;"></div>
+    <div id="chgConvNote" style="font-size:0.74rem;color:var(--cyan);margin-bottom:11px;display:none;"></div>
     <button onclick="confirmCharge()" class="btn-p">✅ شحن الرصيد</button>
   </div>
 </div>
@@ -1683,15 +1685,40 @@ window.openCharge=fid=>{
   document.getElementById('chgName').textContent=`👤 ${currentChgClient.name} — ${currentChgClient.email}`;
   document.getElementById('chgCurr').innerHTML=`${(currentChgClient.balance||0).toLocaleString('ar-LY')} <small style="font-family:'Tajawal',sans-serif;font-size:0.78rem;color:var(--muted);">د.ل</small>`;
   document.getElementById('chgAmt').value='';
+  // إظهار الحقل المناسب حسب عملة الزبون
+  const cur = currentChgClient.currency || 'LYD';
+  const isUSDT = cur === 'USDT';
+  document.getElementById('chgLYDBox').style.display = isUSDT ? 'none' : 'block';
+  document.getElementById('chgUSDTBox').style.display = isUSDT ? 'block' : 'none';
+  const note = document.getElementById('chgConvNote');
+  if(isUSDT){
+    note.style.display='block';
+    note.textContent=`سعر الصرف الحالي: 1 USDT = ${usdtRate} د.ل`;
+  } else {
+    note.style.display='none';
+  }
   document.getElementById('chargeMo').classList.add('open');
 };
 window.confirmCharge=async()=>{
-  const amt=parseFloat(document.getElementById('chgAmt').value);
-  if(!amt||amt<=0){alert('يرجى إدخال مبلغ صحيح');return;}
-  const newBal=(currentChgClient.balance||0)+amt;
+  const cur = currentChgClient.currency || 'LYD';
+  const isUSDT = cur === 'USDT';
+  let amtLYD = 0, amtUSDT = 0;
+  if(isUSDT){
+    amtUSDT = parseFloat(document.getElementById('chgAmtUSDT').value);
+    if(!amtUSDT||amtUSDT<=0){alert('يرجى إدخال مبلغ USDT صحيح');return;}
+    amtLYD = parseFloat((amtUSDT * usdtRate).toFixed(2));
+  } else {
+    amtLYD = parseFloat(document.getElementById('chgAmt').value);
+    if(!amtLYD||amtLYD<=0){alert('يرجى إدخال مبلغ صحيح');return;}
+  }
+  const newBal = parseFloat(((currentChgClient.balance||0) + amtLYD).toFixed(2));
   await updateDoc(doc(db,'clients',currentChgClient.fid),{balance:newBal});
   document.getElementById('chargeMo').classList.remove('open');
-  alert(`✅ تم شحن ${amt} د.ل لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBal} د.ل`);
+  if(isUSDT){
+    alert(`✅ تم شحن ${amtUSDT} USDT (${amtLYD} د.ل) لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBal} د.ل`);
+  } else {
+    alert(`✅ تم شحن ${amtLYD} د.ل لـ ${currentChgClient.name}\nالرصيد الجديد: ${newBal} د.ل`);
+  }
 };
 
 window.copyBinance = () => {
