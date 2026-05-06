@@ -801,7 +801,20 @@ textarea{resize:vertical;min-height:60px;}
   </div>
 </div>
 
-<script type="module">
+<!-- EDIT FILE MODAL -->
+<div class="mo" id="editFileMo" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="md" style="max-width:380px;">
+    <button class="mc" onclick="document.getElementById('editFileMo').classList.remove('open')">✕</button>
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--cyan);">✏️ تعديل الملف</div>
+    <input type="hidden" id="efFid">
+    <div class="fg" style="margin-bottom:9px;"><label>📋 اسم الملف</label><input type="text" id="efName" placeholder="اسم الملف"></div>
+    <div class="fg" style="margin-bottom:9px;"><label>📱 الجهاز / الموديل</label><input type="text" id="efDevice" placeholder="مثال: Samsung A15"></div>
+    <div class="fg" style="margin-bottom:9px;"><label>💰 السعر (د.ل) — 0 للمجاني</label><input type="number" id="efPriceFld" placeholder="0" min="0"></div>
+    <div class="fg" style="margin-bottom:9px;"><label>🔗 رابط التحميل</label><input type="text" id="efUrl" placeholder="https://..."></div>
+    <div class="fg" style="margin-bottom:13px;"><label>📝 ملاحظة</label><input type="text" id="efNote" placeholder="اختياري..."></div>
+    <button onclick="saveEditFile()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ التعديلات</button>
+  </div>
+</div>
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, setDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -957,7 +970,7 @@ function renderFiles(){
         <div style="font-size:0.82rem;color:var(--gold);font-weight:700;margin-top:4px;">💰 ${dispPrice}</div>
       </div>
       <div class="ali-ac" style="display:flex;flex-direction:column;gap:5px;min-width:90px;">
-        ${currentUser?.isAdmin?`<a href="${f.url}" target="_blank" style="padding:7px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-size:0.76rem;text-decoration:none;text-align:center;">⬇️ تحميل</a><button class="ib del" onclick="delFile('${f.fid}')">🗑</button>`:btn}
+        ${currentUser?.isAdmin?`<a href="${f.url}" target="_blank" style="padding:7px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-size:0.76rem;text-decoration:none;text-align:center;">⬇️ تحميل</a><button class="ib" onclick="openEditFile('${f.fid}')" style="color:var(--gold);border-color:rgba(245,200,66,0.3);">✏️</button><button class="ib del" onclick="delFile('${f.fid}')">🗑</button>`:btn}
       </div>
     </div>`;
   }).join('');
@@ -998,6 +1011,32 @@ window.addFile=async()=>{
 window.delFile=async fid=>{
   if(!confirm('حذف هذا الملف؟')) return;
   await deleteDoc(doc(db,'files',fid));
+};
+
+window.openEditFile=fid=>{
+  const f=files.find(x=>x.fid===fid);
+  if(!f) return;
+  document.getElementById('efFid').value=fid;
+  document.getElementById('efName').value=f.name||'';
+  document.getElementById('efDevice').value=f.device||'';
+  document.getElementById('efPriceFld').value=f.price||0;
+  document.getElementById('efUrl').value=f.url||'';
+  document.getElementById('efNote').value=f.note||'';
+  document.getElementById('editFileMo').classList.add('open');
+};
+
+window.saveEditFile=async()=>{
+  const fid=document.getElementById('efFid').value;
+  const name=document.getElementById('efName').value.trim();
+  const url=document.getElementById('efUrl').value.trim();
+  if(!name||!url){alert('يرجى إدخال الاسم والرابط');return;}
+  await updateDoc(doc(db,'files',fid),{
+    name, url,
+    device:document.getElementById('efDevice').value.trim(),
+    price:parseFloat(document.getElementById('efPriceFld').value)||0,
+    note:document.getElementById('efNote').value.trim(),
+  });
+  document.getElementById('editFileMo').classList.remove('open');
 };
 
 function renderAdsSlider(){
