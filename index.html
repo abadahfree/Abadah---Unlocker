@@ -20,7 +20,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 @keyframes modalIn{from{opacity:0;transform:scale(0.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-#loadingScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#loadingScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;}
 .screen{position:fixed;inset:0;background:var(--bg);z-index:990;display:flex;align-items:center;justify-content:center;padding:16px;}
 .auth-box{background:var(--surface);border:1px solid rgba(0,212,255,0.2);border-radius:24px;padding:36px 28px;max-width:400px;width:100%;text-align:center;box-shadow:0 40px 80px rgba(0,0,0,0.5);}
@@ -473,7 +473,6 @@ textarea{resize:vertical;min-height:60px;}
       <div class="fg" style="margin-bottom:9px;"><label>📋 اسم الملف</label><input type="text" id="fileName" placeholder="مثال: Samsung A15 FRP Fix"></div>
       <div class="fg" style="margin-bottom:9px;"><label>🔗 رابط التحميل</label><input type="text" id="fileUrl" placeholder="https://..."></div>
       <div class="fg" style="margin-bottom:9px;"><label>📱 الجهاز / الموديل</label><input type="text" id="fileDevice" placeholder="مثال: Samsung A15"></div>
-      <div class="fg" style="margin-bottom:9px;"><label>💰 السعر (د.ل) — اتركه 0 للمجاني</label><input type="number" id="filePrice" placeholder="0" min="0" value="0"></div>
       <div class="fg" style="margin-bottom:9px;"><label>📝 ملاحظة (اختياري)</label><input type="text" id="fileNote" placeholder="تفاصيل إضافية..."></div>
       <button onclick="addFile()" class="btn-p" style="width:100%;margin-top:0;">➕ إضافة ملف</button>
     </div>
@@ -801,20 +800,7 @@ textarea{resize:vertical;min-height:60px;}
   </div>
 </div>
 
-<!-- EDIT FILE MODAL -->
-<div class="mo" id="editFileMo" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="md" style="max-width:380px;">
-    <button class="mc" onclick="document.getElementById('editFileMo').classList.remove('open')">✕</button>
-    <div style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--cyan);">✏️ تعديل الملف</div>
-    <input type="hidden" id="efFid">
-    <div class="fg" style="margin-bottom:9px;"><label>📋 اسم الملف</label><input type="text" id="efName" placeholder="اسم الملف"></div>
-    <div class="fg" style="margin-bottom:9px;"><label>📱 الجهاز / الموديل</label><input type="text" id="efDevice" placeholder="مثال: Samsung A15"></div>
-    <div class="fg" style="margin-bottom:9px;"><label>💰 السعر (د.ل) — 0 للمجاني</label><input type="number" id="efPriceFld" placeholder="0" min="0"></div>
-    <div class="fg" style="margin-bottom:9px;"><label>🔗 رابط التحميل</label><input type="text" id="efUrl" placeholder="https://..."></div>
-    <div class="fg" style="margin-bottom:13px;"><label>📝 ملاحظة</label><input type="text" id="efNote" placeholder="اختياري..."></div>
-    <button onclick="saveEditFile()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ التعديلات</button>
-  </div>
-</div>
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, setDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -880,7 +866,7 @@ let activeCat='', pinInput='', adminUnlocked=false;
 const hide = id => document.getElementById(id).style.display='none';
 const show = (id,d='flex') => document.getElementById(id).style.display=d;
 
-function showLoad(){ } // مش مستخدمة
+function showLoad(){ show('loadingScreen'); }
 function hideLoad(){ hide('loadingScreen'); }
 function showLogin(){ hideLoad(); hide('registerScreen'); hide('pendingScreen'); hide('mainApp'); show('loginScreen'); }
 function showRegister(){ hide('loginScreen'); show('registerScreen'); }
@@ -891,15 +877,13 @@ function showPending(){ hide('loginScreen'); hide('registerScreen'); show('pendi
 
 function showApp(){
   hide('loginScreen'); hide('registerScreen'); hide('pendingScreen');
-  hideLoad();
-  show('mainApp','block');
+  show('mainApp','block'); hideLoad();
   const isAdmin = currentUser?.isAdmin;
   document.getElementById('adminTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('dashTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('clientsTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('filesTab').style.display = 'flex';
   updateUserBar();
-  renderServices();
   loadRealtime();
   loadUsdtRate();
 }
@@ -908,7 +892,8 @@ function showApp(){
 const saved = localStorage.getItem('au_sess');
 if(saved){
   currentUser = JSON.parse(saved);
-  showApp(); // يفتح فوراً بدون انتظار Firebase
+  showLoad();
+  showApp();
 } else {
   hideLoad();
   showLogin();
@@ -952,92 +937,35 @@ function renderFiles(){
   const q=(document.getElementById('searchFiles')?.value||'').toLowerCase();
   let list=q?files.filter(f=>(f.name||'').toLowerCase().includes(q)||(f.device||'').toLowerCase().includes(q)):files;
   if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">📁</div><h3>${q?'لا نتائج':'لا توجد ملفات بعد'}</h3></div>`;return;}
-  const me=currentUser?.isAdmin?null:clients.find(c=>c.fid===currentUser?.fid);
-  const cur=me?.currency||'LYD';
-  el.innerHTML=list.map((f,i)=>{
-    const price=f.price||0;
-    const isFree=price===0;
-    const dispPrice=isFree?'مجاني':cur==='USDT'?(price/usdtRate).toFixed(2)+' USDT':price+' د.ل';
-    const btn=isFree
-      ?`<a href="${f.url}" target="_blank" style="padding:7px 12px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:8px;color:var(--green);font-size:0.76rem;text-decoration:none;text-align:center;display:block;">⬇️ تحميل مجاني</a>`
-      :`<button onclick="buyFile('${f.fid}')" style="padding:7px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-size:0.76rem;cursor:pointer;font-family:'Tajawal',sans-serif;width:100%;">💳 دفع وتحميل</button>`;
-    return `
+  el.innerHTML=list.map((f,i)=>`
     <div class="ali" style="animation-delay:${i*0.03}s">
       <div class="ali-ic" style="background:rgba(255,170,0,0.1);font-size:1.3rem;">⚠️</div>
       <div class="ali-b">
         <div class="ali-n">${f.name}</div>
         <div style="font-size:0.78rem;color:var(--cyan);margin-bottom:3px;">📱 ${f.device||'—'}</div>
         ${f.note?`<div style="font-size:0.74rem;color:var(--muted);">📝 ${f.note}</div>`:''}
-        <div style="font-size:0.82rem;color:var(--gold);font-weight:700;margin-top:4px;">💰 ${dispPrice}</div>
       </div>
-      <div class="ali-ac" style="display:flex;flex-direction:column;gap:5px;min-width:90px;">
-        ${currentUser?.isAdmin?`<a href="${f.url}" target="_blank" style="padding:7px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-size:0.76rem;text-decoration:none;text-align:center;">⬇️ تحميل</a><button class="ib" onclick="openEditFile('${f.fid}')" style="color:var(--gold);border-color:rgba(245,200,66,0.3);">✏️</button><button class="ib del" onclick="delFile('${f.fid}')">🗑</button>`:btn}
+      <div class="ali-ac" style="display:flex;flex-direction:column;gap:5px;">
+        <a href="${f.url}" target="_blank" style="padding:7px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-size:0.76rem;text-decoration:none;text-align:center;">⬇️ تحميل</a>
+        ${currentUser?.isAdmin?`<button class="ib del" onclick="delFile('${f.fid}')">🗑</button>`:''}
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
-
-window.buyFile=async fid=>{
-  const f=files.find(x=>x.fid===fid);
-  if(!f) return;
-  const me=clients.find(c=>c.fid===currentUser?.fid);
-  if(!me){alert('يرجى تسجيل الدخول');return;}
-  const cur=me.currency||'LYD';
-  const price=f.price||0;
-  const bal=cur==='USDT'?(me.balanceUSDT||0):(me.balance||0);
-  const cost=cur==='USDT'?parseFloat((price/usdtRate).toFixed(4)):price;
-  const dispCost=cur==='USDT'?cost+' USDT':cost+' د.ل';
-  const dispBal=cur==='USDT'?bal.toFixed(2)+' USDT':bal+' د.ل';
-  if(bal<cost){alert(`⚠️ رصيدك غير كافٍ\nالمطلوب: ${dispCost}\nرصيدك: ${dispBal}`);return;}
-  if(!confirm(`💳 دفع ${dispCost} لتحميل:\n${f.name}`)) return;
-  const after=parseFloat((bal-cost).toFixed(4));
-  const upd=cur==='USDT'?{balanceUSDT:after}:{balance:after};
-  await updateDoc(doc(db,'clients',me.fid),upd);
-  window.open(f.url,'_blank');
-  alert(`✅ تم الدفع بنجاح!\nالرصيد المتبقي: ${cur==='USDT'?after.toFixed(2)+' USDT':after+' د.ل'}`);
-};
 
 window.addFile=async()=>{
   const name=document.getElementById('fileName').value.trim();
   const url=document.getElementById('fileUrl').value.trim();
   const device=document.getElementById('fileDevice').value.trim();
   const note=document.getElementById('fileNote').value.trim();
-  const price=parseFloat(document.getElementById('filePrice').value)||0;
   if(!name||!url){alert('يرجى إدخال الاسم والرابط');return;}
-  await addDoc(filesCol,{name,url,device,note,price,createdAt:Date.now()});
-  ['fileName','fileUrl','fileDevice','fileNote','filePrice'].forEach(id=>document.getElementById(id).value='');
+  await addDoc(filesCol,{name,url,device,note,createdAt:Date.now()});
+  ['fileName','fileUrl','fileDevice','fileNote'].forEach(id=>document.getElementById(id).value='');
   alert('✅ تم إضافة الملف');
 };
 
 window.delFile=async fid=>{
   if(!confirm('حذف هذا الملف؟')) return;
   await deleteDoc(doc(db,'files',fid));
-};
-
-window.openEditFile=fid=>{
-  const f=files.find(x=>x.fid===fid);
-  if(!f) return;
-  document.getElementById('efFid').value=fid;
-  document.getElementById('efName').value=f.name||'';
-  document.getElementById('efDevice').value=f.device||'';
-  document.getElementById('efPriceFld').value=f.price||0;
-  document.getElementById('efUrl').value=f.url||'';
-  document.getElementById('efNote').value=f.note||'';
-  document.getElementById('editFileMo').classList.add('open');
-};
-
-window.saveEditFile=async()=>{
-  const fid=document.getElementById('efFid').value;
-  const name=document.getElementById('efName').value.trim();
-  const url=document.getElementById('efUrl').value.trim();
-  if(!name||!url){alert('يرجى إدخال الاسم والرابط');return;}
-  await updateDoc(doc(db,'files',fid),{
-    name, url,
-    device:document.getElementById('efDevice').value.trim(),
-    price:parseFloat(document.getElementById('efPriceFld').value)||0,
-    note:document.getElementById('efNote').value.trim(),
-  });
-  document.getElementById('editFileMo').classList.remove('open');
 };
 
 function renderAdsSlider(){
