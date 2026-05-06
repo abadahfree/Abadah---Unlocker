@@ -955,12 +955,13 @@ function renderFiles(){
   if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">📁</div><h3>${q?'لا نتائج':'لا توجد ملفات بعد'}</h3></div>`;return;}
   const me=currentUser?.isAdmin?null:clients.find(c=>c.fid===currentUser?.fid);
   const cur=me?.currency||'LYD';
+  const hasFreeFiles=!!me?.freeFiles;
   el.innerHTML=list.map((f,i)=>{
     const price=f.price||0;
-    const isFree=price===0;
-    const dispPrice=isFree?'مجاني':cur==='USDT'?(price/usdtRate).toFixed(2)+' USDT':price+' د.ل';
+    const isFree=price===0||hasFreeFiles;
+    const dispPrice=hasFreeFiles?'🎁 مجاني':price===0?'مجاني':cur==='USDT'?(price/usdtRate).toFixed(2)+' USDT':price+' د.ل';
     const dlBtn=isFree
-      ?`<a href="${f.url}" target="_blank" style="padding:7px 10px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:8px;color:var(--green);font-size:0.76rem;text-decoration:none;text-align:center;display:block;">⬇️ مجاني</a>`
+      ?`<a href="${f.url}" target="_blank" style="padding:7px 10px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:8px;color:var(--green);font-size:0.76rem;text-decoration:none;text-align:center;display:block;">⬇️ تحميل</a>`
       :`<button onclick="buyFile('${f.fid}')" style="padding:7px 10px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-size:0.76rem;cursor:pointer;font-family:'Tajawal',sans-serif;">💳 دفع</button>`;
     return `
     <div class="ali" style="animation-delay:${i*0.03}s">
@@ -969,7 +970,7 @@ function renderFiles(){
         <div class="ali-n">${f.name}</div>
         <div style="font-size:0.78rem;color:var(--cyan);margin-bottom:3px;">📱 ${f.device||'—'}</div>
         ${f.note?`<div style="font-size:0.74rem;color:var(--muted);">📝 ${f.note}</div>`:''}
-        <div style="font-size:0.82rem;color:var(--gold);font-weight:700;margin-top:4px;">💰 ${dispPrice}</div>
+        <div style="font-size:0.82rem;color:${hasFreeFiles?'var(--green)':'var(--gold)'};font-weight:700;margin-top:4px;">${dispPrice}</div>
       </div>
       <div class="ali-ac" style="display:flex;flex-direction:column;gap:5px;min-width:75px;">
         ${currentUser?.isAdmin
@@ -1867,6 +1868,7 @@ function renderClientsTab(){
       </div>
       <div class="ali-ac">
         <button class="ib" onclick="openCharge('${c.fid}')" style="color:var(--gold);border-color:rgba(245,200,66,0.3);">💰</button>
+        <button class="ib" onclick="toggleFreeFiles('${c.fid}')" style="color:${c.freeFiles?'var(--green)':'var(--muted)'};border-color:${c.freeFiles?'rgba(0,230,118,0.3)':'rgba(255,255,255,0.1)'}" title="${c.freeFiles?'ملفات مجانية مفعّلة':'تفعيل ملفات مجانية'}">🎁</button>
         <button class="ib del" onclick="delClient('${c.fid}')">🗑</button>
       </div>
     </div>`).join('');
