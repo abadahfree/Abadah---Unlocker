@@ -880,17 +880,8 @@ let activeCat='', pinInput='', adminUnlocked=false;
 const hide = id => document.getElementById(id).style.display='none';
 const show = (id,d='flex') => document.getElementById(id).style.display=d;
 
-function showLoad(){ 
-  show('loadingScreen'); 
-  window._loadTimeout=setTimeout(()=>{
-    hideLoad();
-    showLogin();
-  }, 10000);
-}
-function hideLoad(){ 
-  clearTimeout(window._loadTimeout);
-  hide('loadingScreen'); 
-}
+function showLoad(){ } // مش مستخدمة
+function hideLoad(){ hide('loadingScreen'); }
 function showLogin(){ hideLoad(); hide('registerScreen'); hide('pendingScreen'); hide('mainApp'); show('loginScreen'); }
 function showRegister(){ hide('loginScreen'); show('registerScreen'); }
 window.showLogin = showLogin;
@@ -900,13 +891,15 @@ function showPending(){ hide('loginScreen'); hide('registerScreen'); show('pendi
 
 function showApp(){
   hide('loginScreen'); hide('registerScreen'); hide('pendingScreen');
-  show('mainApp','block'); hideLoad();
+  hideLoad();
+  show('mainApp','block');
   const isAdmin = currentUser?.isAdmin;
   document.getElementById('adminTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('dashTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('clientsTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('filesTab').style.display = 'flex';
   updateUserBar();
+  renderServices();
   loadRealtime();
   loadUsdtRate();
 }
@@ -915,8 +908,7 @@ function showApp(){
 const saved = localStorage.getItem('au_sess');
 if(saved){
   currentUser = JSON.parse(saved);
-  showLoad();
-  showApp();
+  showApp(); // يفتح فوراً بدون انتظار Firebase
 } else {
   hideLoad();
   showLogin();
