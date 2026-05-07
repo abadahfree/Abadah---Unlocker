@@ -628,6 +628,24 @@ textarea{resize:vertical;min-height:60px;}
     <!-- سجل كل الطلبات -->
     <div style="margin-top:26px;">
       <div class="sec-title" style="margin-bottom:11px;">📊 سجل جميع الطلبات</div>
+      <!-- فلاتر الطلبات -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px;">
+        <div class="sw" style="flex:1;min-width:180px;"><span class="si">🔍</span><input type="text" id="searchOrds" placeholder="ابحث باسم الزبون أو الخدمة..." oninput="renderAllOrders()"></div>
+        <select id="filterOrdStatus" onchange="renderAllOrders()" style="padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.84rem;">
+          <option value="">📋 كل الحالات</option>
+          <option value="pending">⏳ قيد المراجعة</option>
+          <option value="processing">🔄 قيد المعالجة</option>
+          <option value="completed">✅ مكتمل</option>
+          <option value="rejected">❌ مرفوض</option>
+        </select>
+        <select id="filterOrdDate" onchange="renderAllOrders()" style="padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.84rem;">
+          <option value="">📅 كل الأوقات</option>
+          <option value="today">اليوم</option>
+          <option value="week">هذا الأسبوع</option>
+          <option value="month">هذا الشهر</option>
+        </select>
+      </div>
+      <div id="ordersCount" style="font-size:0.76rem;color:var(--muted);margin-bottom:10px;"></div>
       <div id="allOrders"></div>
     </div>
 
@@ -1697,9 +1715,31 @@ function renderAllCharges(){
 function renderAllOrders(){
   const el=document.getElementById('allOrders');
   if(!el) return;
-  if(!orders.length){el.innerHTML=`<div class="empty"><div class="ei">📊</div><h3>لا توجد طلبات</h3></div>`;return;}
+
+  // فلترة
+  const q=(document.getElementById('searchOrds')?.value||'').toLowerCase();
+  const st=document.getElementById('filterOrdStatus')?.value||'';
+  const dt=document.getElementById('filterOrdDate')?.value||'';
+  const now=Date.now();
+  const startOfDay=new Date(); startOfDay.setHours(0,0,0,0);
+  const startOfWeek=new Date(); startOfWeek.setDate(startOfWeek.getDate()-startOfWeek.getDay()); startOfWeek.setHours(0,0,0,0);
+  const startOfMonth=new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
+
+  let filtered=orders.filter(o=>{
+    if(q && !o.clientName?.toLowerCase().includes(q) && !o.serviceName?.toLowerCase().includes(q) && !o.clientEmail?.toLowerCase().includes(q)) return false;
+    if(st && o.status!==st) return false;
+    if(dt==='today' && o.createdAt<startOfDay.getTime()) return false;
+    if(dt==='week' && o.createdAt<startOfWeek.getTime()) return false;
+    if(dt==='month' && o.createdAt<startOfMonth.getTime()) return false;
+    return true;
+  });
+
+  const countEl=document.getElementById('ordersCount');
+  if(countEl) countEl.textContent=`${filtered.length} طلب${q||st||dt?' (بعد الفلترة)':''}`;
+
+  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="ei">📊</div><h3>${q||st||dt?'لا نتائج':'لا توجد طلبات'}</h3></div>`;return;}
   const stMap={pending:{ic:'⏳',txt:'قيد المراجعة',cls:'pending'},processing:{ic:'🔄',txt:'قيد المعالجة',cls:'processing'},completed:{ic:'✅',txt:'مكتمل',cls:'completed'},rejected:{ic:'❌',txt:'مرفوض',cls:'rejected'}};
-  el.innerHTML=orders.slice(0,100).map((o,i)=>{
+  el.innerHTML=filtered.slice(0,100).map((o,i)=>{
     const st=stMap[o.status]||stMap.pending;
     const extra=[
       o.imei?`<div class="ord-detail-row">📱 IMEI: <span>${o.imei}</span></div>`:'',
