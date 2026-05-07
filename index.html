@@ -187,8 +187,8 @@ textarea{resize:vertical;min-height:60px;}
 <!-- LOGIN -->
 <div id="loginScreen" class="screen" style="display:none;">
   <div class="auth-box">
-    <div style="font-size:2.8rem;margin-bottom:12px;" id="loginIcon">🔓</div>
-    <div class="brand" id="loginTitle">ABADAH UNLOCKER</div>
+    <div style="font-size:2.8rem;margin-bottom:12px;">🔓</div>
+    <div class="brand">ABADAH UNLOCKER</div>
     <p style="color:var(--muted);font-size:0.82rem;margin-bottom:26px;">سجّل دخولك للمتابعة</p>
     <div class="fg" style="margin-bottom:11px;text-align:right;"><label>البريد الإلكتروني</label><input type="email" id="liEmail" placeholder="example@email.com" style="text-align:center;"></div>
     <div class="fg" style="margin-bottom:18px;text-align:right;"><label>كلمة السر</label><input type="password" id="liPass" placeholder="••••••••" style="text-align:center;" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -258,8 +258,8 @@ textarea{resize:vertical;min-height:60px;}
 
   <!-- HERO -->
   <div style="text-align:center;padding:36px 20px 26px;animation:fadeDown 0.7s ease both;">
-    <div class="hero-badge" id="heroBadge">🔓 Services Platform</div>
-    <div class="brand" style="margin-bottom:8px;" id="heroTitle">ABADAH UNLOCKER</div>
+    <div class="hero-badge">🔓 Services Platform</div>
+    <div class="brand" style="margin-bottom:8px;">ABADAH UNLOCKER</div>
     <p style="color:var(--text2);font-size:0.88rem;margin-bottom:18px;">خدمات احترافية · دفع سريع</p>
     <div class="stats">
       <div class="stat"><div class="stat-n" id="totalS">0</div><div class="stat-l">الخدمات</div></div>
@@ -340,6 +340,10 @@ textarea{resize:vertical;min-height:60px;}
     <div class="acc-card">
       <div style="font-size:0.8rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:13px;">📋 سجل طلباتي</div>
       <div id="myOrders"></div>
+    </div>
+    <div class="acc-card">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:13px;">💳 سجل المعاملات المالية</div>
+      <div id="myTransactions"></div>
     </div>
   </div>
 
@@ -471,14 +475,7 @@ textarea{resize:vertical;min-height:60px;}
   <!-- ADMIN -->
   <div class="panel" id="panel-admin">
 
-    <!-- إعدادات الموقع -->
-    <div class="adm-form" style="margin-bottom:14px;">
-      <div class="sec-title">🎨 إعدادات الموقع</div>
-      <div class="fg" style="margin-bottom:9px;"><label>📝 اسم الموقع</label><input type="text" id="siteNameInput" placeholder="مثال: ABADAH UNLOCKER"></div>
-      <div class="fg" style="margin-bottom:9px;"><label>🏷️ الشعار الفرعي</label><input type="text" id="siteBadgeInput" placeholder="مثال: Services Platform"></div>
-      <div class="fg" style="margin-bottom:9px;"><label>🔣 الأيقونة (emoji)</label><input type="text" id="siteIconInput" placeholder="مثال: 🔓" maxlength="4"></div>
-      <button onclick="saveSiteSettings()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ الإعدادات</button>
-    </div>
+    <!-- إدارة ملفات الإصلاح -->
     <div class="adm-form" style="margin-bottom:14px;">
       <div class="sec-title">⚠️ إدارة ملفات الإصلاح</div>
       <div style="font-size:0.78rem;color:var(--muted);margin-bottom:11px;">أضف ملفات إصلاح تظهر للزبائن</div>
@@ -937,7 +934,6 @@ function showApp(){
   updateUserBar();
   loadRealtime();
   loadUsdtRate();
-  loadSiteSettings();
 }
 
 // ===== SESSION =====
@@ -964,7 +960,7 @@ function loadRealtime(){
   onSnapshot(query(ordCol, orderBy('createdAt','desc')), snap=>{
     orders=snap.docs.map(d=>({...d.data(),fid:d.id}));
     console.log('📦 orders loaded:', orders.length, orders);
-    renderMyOrders(); renderAllOrders();
+    renderMyOrders(); renderMyTransactions(); renderAllOrders();
     if(currentUser?.isAdmin) updateDashboard();
   });
   onSnapshot(query(regCol, orderBy('createdAt','desc')), snap=>{
@@ -1026,50 +1022,6 @@ window.toggleFreeFiles=async fid=>{
   await updateDoc(doc(db,'clients',fid),{freeFiles:newVal});
   alert(newVal?`✅ تم تفعيل ملفات مجانية لـ ${c.name}`:`❌ تم إلغاء ملفات مجانية لـ ${c.name}`);
 };
-
-window.toggleBan=async fid=>{
-  const c=clients.find(x=>x.fid===fid);
-  if(!c) return;
-  const newVal=!c.banned;
-  await updateDoc(doc(db,'clients',fid),{banned:newVal});
-  alert(newVal?`🚫 تم حظر ${c.name}`:`✅ تم رفع الحظر عن ${c.name}`);
-};
-
-window.saveSiteSettings=async()=>{
-  const name=document.getElementById('siteNameInput').value.trim();
-  const badge=document.getElementById('siteBadgeInput').value.trim();
-  const icon=document.getElementById('siteIconInput').value.trim();
-  if(!name){alert('يرجى إدخال اسم الموقع');return;}
-  await setDoc(doc(db,'config','siteSettings'),{name,badge,icon});
-  applySiteSettings({name,badge,icon});
-  alert('✅ تم حفظ إعدادات الموقع');
-};
-
-function applySiteSettings(s){
-  if(!s) return;
-  if(s.name){
-    document.querySelectorAll('#heroTitle,#loginTitle').forEach(el=>el&&(el.textContent=s.name));
-    document.title=s.name;
-  }
-  if(s.badge) document.getElementById('heroBadge')&&(document.getElementById('heroBadge').innerHTML=`${s.icon||'🔓'} ${s.badge}`);
-  if(s.icon) document.getElementById('loginIcon')&&(document.getElementById('loginIcon').textContent=s.icon);
-}
-
-async function loadSiteSettings(){
-  try{
-    const snap=await getDocs(query(collection(db,'config')));
-    snap.forEach(d=>{
-      if(d.id==='siteSettings'){
-        const s=d.data();
-        applySiteSettings(s);
-        if(s.name) document.getElementById('siteNameInput')&&(document.getElementById('siteNameInput').value=s.name);
-        if(s.badge) document.getElementById('siteBadgeInput')&&(document.getElementById('siteBadgeInput').value=s.badge);
-        if(s.icon) document.getElementById('siteIconInput')&&(document.getElementById('siteIconInput').value=s.icon);
-      }
-      if(d.id==='usdtRate') usdtRate=d.data().rate||5;
-    });
-  }catch(e){}
-}
 
 window.buyFile=async fid=>{
   const f=files.find(x=>x.fid===fid);
@@ -1218,7 +1170,6 @@ window.doLogin = async () => {
     const cd=snap.docs[0]; const c=cd.data();
     if(c.password!==pass){ document.getElementById('liErr').textContent='❌ كلمة السر خاطئة'; btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
     if(c.status==='pending'){ showPending(); btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
-    if(c.banned){ document.getElementById('liErr').textContent='🚫 حسابك محظور. تواصل مع المسؤول.'; btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
     if(c.status==='rejected'){ document.getElementById('liErr').textContent='❌ تم رفض حسابك، تواصل مع المسؤول'; btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
     currentUser={name:c.name,email:c.email,phone:c.phone,fid:cd.id,isAdmin:false};
     localStorage.setItem('au_sess',JSON.stringify(currentUser));
@@ -1308,11 +1259,11 @@ window.switchTab = t => {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   const p=document.getElementById('panel-'+t);
   if(p) p.classList.add('active');
-  if(t==='account'){updateUserBar();renderMyOrders();}
+  if(t==='account'){updateUserBar();renderMyOrders();renderMyTransactions();}
   if(t==='dashboard'){setTimeout(()=>updateDashboard(),100);}
   if(t==='clients'){renderClientsTab();}
   if(t==='files'){renderFiles();}
-  if(t==='admin'){loadTgConfig();loadUsdtRate();loadSiteSettings();renderAdmin();renderClients();renderAllOrders();renderPending();}
+  if(t==='admin'){loadTgConfig();loadUsdtRate();renderAdmin();renderClients();renderAllOrders();renderPending();}
 };
 
 window.setCategory=(btn,cat)=>{
@@ -1629,30 +1580,71 @@ window.rejectClient = async fid => {
 };
 
 // ===== ADMIN SERVICES =====
+function renderMyTransactions(){
+  const el=document.getElementById('myTransactions');
+  if(!el||!currentUser) return;
+  const myOrds=orders.filter(o=>o.clientId===currentUser.fid).sort((a,b)=>b.createdAt-a.createdAt);
+  const me=clients.find(c=>c.fid===currentUser.fid);
+  const cur=me?.currency||'LYD';
+  if(!myOrds.length){el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:0.82rem;padding:15px;">لا توجد معاملات بعد</div>';return;}
+  el.innerHTML=myOrds.map(o=>{
+    const date=new Date(o.createdAt).toLocaleDateString('ar-LY');
+    const time=new Date(o.createdAt).toLocaleTimeString('ar-LY',{hour:'2-digit',minute:'2-digit'});
+    const amt=cur==='USDT'?(o.totalUSDT||0).toFixed(2)+' USDT':(o.total||0)+' د.ل';
+    const bal=cur==='USDT'?(o.balanceAfter||0).toFixed(2)+' USDT':(o.balanceAfter||0)+' د.ل';
+    const st=o.status==='completed'?{c:'var(--green)',l:'✅ مكتمل'}:o.status==='rejected'?{c:'var(--red)',l:'❌ مرفوض'}:{c:'var(--gold)',l:'⏳ معالجة'};
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;gap:8px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">🛍️ ${o.serviceName||'—'}</div>
+        <div style="font-size:0.72rem;color:var(--muted);">${date} · ${time}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">الرصيد بعد: ${bal}</div>
+      </div>
+      <div style="text-align:left;flex-shrink:0;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;color:var(--red);font-weight:700;">-${amt}</div>
+        <div style="font-size:0.7rem;color:${st.c};margin-top:3px;">${st.l}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderAdmin(){
   const q=(document.getElementById('searchAdm')?.value||'').toLowerCase();
   const el=document.getElementById('adminList');
   if(!el) return;
   const list=services.filter(s=>s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q));
   if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">📋</div><h3>لا توجد خدمات</h3></div>`;return;}
-  el.innerHTML=list.map((s,i)=>`
-    <div class="ali" style="animation-delay:${i*0.03}s">
-      ${s.image?`<img class="ali-th" src="${s.image}" alt="${s.name}">`:`<div class="ali-ic">${s.icon}</div>`}
-      <div class="ali-b">
-        <div class="ali-n">${s.name}</div>
-        <div class="ali-m">
-          <span class="chip cg">💰 ${s.price.toLocaleString('ar-LY')} د.ل</span>
-          <span class="chip cc">${s.category}</span>
-          <span class="chip ${s.active?'con':'cof'}">${s.active?'✅ نشطة':'⏸ متوقفة'}</span>
-        </div>
-        <label class="eib">🖼️ ${s.image?'تغيير':'إضافة'}<input type="file" accept="image/*" style="display:none" onchange="changeImg('${s.fid}',this)"></label>
+  // تجميع حسب التصنيف
+  const cats=[...new Set(list.map(s=>s.category||'أخرى'))];
+  el.innerHTML=cats.map(cat=>{
+    const catServices=list.filter(s=>(s.category||'أخرى')===cat);
+    const catIcon=cat==='إيجار أدوات'?'🔧':cat==='تفعيل أدوات'?'⚡':cat==='خدمات FRP'?'🛡️':cat==='خدمات iCloud'?'☁️':cat==='خدمات حسابات'?'👤':'📦';
+    return `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:10px;margin-bottom:8px;cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.arr').textContent=this.nextElementSibling.style.display==='none'?'▼':'▲'">
+        <span style="font-weight:700;color:var(--cyan);font-size:0.88rem;">${catIcon} ${cat} <span style="color:var(--muted);font-size:0.78rem;">(${catServices.length})</span></span>
+        <span class="arr" style="color:var(--muted);font-size:0.8rem;">▲</span>
       </div>
-      <div class="ali-ac">
-        <button class="ib" onclick="openEditSvc('${s.fid}')">✏️</button>
-        <button class="ib" onclick="toggleSvc('${s.fid}')">${s.active?'⏸':'▶️'}</button>
-        <button class="ib del" onclick="delSvc('${s.fid}')">🗑</button>
+      <div>
+        ${catServices.map((s,i)=>`
+        <div class="ali" style="animation-delay:${i*0.03}s">
+          ${s.image?`<img class="ali-th" src="${s.image}" alt="${s.name}">`:`<div class="ali-ic">${s.icon}</div>`}
+          <div class="ali-b">
+            <div class="ali-n">${s.name}</div>
+            <div class="ali-m">
+              <span class="chip cg">💰 ${s.price.toLocaleString('ar-LY')} د.ل</span>
+              <span class="chip ${s.active?'con':'cof'}">${s.active?'✅ نشطة':'⏸ متوقفة'}</span>
+            </div>
+            <label class="eib">🖼️ ${s.image?'تغيير':'إضافة'}<input type="file" accept="image/*" style="display:none" onchange="changeImg('${s.fid}',this)"></label>
+          </div>
+          <div class="ali-ac">
+            <button class="ib" onclick="openEditSvc('${s.fid}')">✏️</button>
+            <button class="ib" onclick="toggleSvc('${s.fid}')">${s.active?'⏸':'▶️'}</button>
+            <button class="ib del" onclick="delSvc('${s.fid}')">🗑</button>
+          </div>
+        </div>`).join('')}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 window.addService=async()=>{
@@ -1928,7 +1920,6 @@ function renderClients(){
       <div class="ali-ac">
         <button class="ib" onclick="openCharge('${c.fid}')" style="color:var(--gold);border-color:rgba(245,200,66,0.3);">💰</button>
         <button class="ib" onclick="toggleFreeFiles('${c.fid}')" style="color:${c.freeFiles?'var(--green)':'var(--muted)'};border-color:${c.freeFiles?'rgba(0,230,118,0.3)':'rgba(255,255,255,0.1)'}" title="${c.freeFiles?'ملفات مجانية مفعّلة':'تفعيل ملفات مجانية'}">🎁</button>
-        <button class="ib" onclick="toggleBan('${c.fid}')" style="color:${c.banned?'var(--red)':'var(--muted)'};border-color:${c.banned?'rgba(255,68,68,0.3)':'rgba(255,255,255,0.1)'}" title="${c.banned?'محظور — اضغط لرفع الحظر':'حظر الزبون'}">🚫</button>
         <button class="ib del" onclick="delClient('${c.fid}')">🗑</button>
       </div>
     </div>`).join('');
@@ -1955,7 +1946,6 @@ function renderClientsTab(){
       <div class="ali-ac">
         <button class="ib" onclick="openCharge('${c.fid}')" style="color:var(--gold);border-color:rgba(245,200,66,0.3);">💰</button>
         <button class="ib" onclick="toggleFreeFiles('${c.fid}')" style="color:${c.freeFiles?'var(--green)':'var(--muted)'};border-color:${c.freeFiles?'rgba(0,230,118,0.3)':'rgba(255,255,255,0.1)'}" title="${c.freeFiles?'ملفات مجانية مفعّلة':'تفعيل ملفات مجانية'}">🎁</button>
-        <button class="ib" onclick="toggleBan('${c.fid}')" style="color:${c.banned?'var(--red)':'var(--muted)'};border-color:${c.banned?'rgba(255,68,68,0.3)':'rgba(255,255,255,0.1)'}" title="${c.banned?'محظور — اضغط لرفع الحظر':'حظر الزبون'}">🚫</button>
         <button class="ib del" onclick="delClient('${c.fid}')">🗑</button>
       </div>
     </div>`).join('');
