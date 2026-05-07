@@ -550,6 +550,10 @@ textarea{resize:vertical;min-height:60px;}
         <div class="fg"><label>الاسم *</label><input type="text" id="aName" placeholder="اسم الخدمة"></div>
         <div class="fg"><label>السعر (د.ل) *</label><input type="number" id="aPrice" placeholder="50" min="0"></div>
       </div>
+      <div class="form-grid" style="margin-bottom:9px;">
+        <div class="fg"><label>💰 سعر الجملة (د.ل)</label><input type="number" id="aBulkPrice" placeholder="0 = غير مفعّل" min="0"></div>
+        <div class="fg"><label>📦 الحد الأدنى للجملة</label><input type="number" id="aBulkMin" placeholder="مثال: 10" min="2" value="10"></div>
+      </div>
       <div class="form-grid">
         <div class="fg"><label>التصنيف</label>
           <select id="aCat">
@@ -795,6 +799,10 @@ textarea{resize:vertical;min-height:60px;}
     <div class="form-grid" style="margin-bottom:9px;">
       <div class="fg"><label>اسم الخدمة</label><input type="text" id="eName" placeholder="اسم الخدمة"></div>
       <div class="fg"><label>السعر (د.ل)</label><input type="number" id="ePrice" placeholder="0" min="0"></div>
+    </div>
+    <div class="form-grid" style="margin-bottom:9px;">
+      <div class="fg"><label>💰 سعر الجملة (د.ل)</label><input type="number" id="eBulkPrice" placeholder="0 = غير مفعّل" min="0"></div>
+      <div class="fg"><label>📦 الحد الأدنى للجملة</label><input type="number" id="eBulkMin" placeholder="مثال: 10" min="2"></div>
     </div>
     <div class="fg" style="margin-bottom:9px;"><label>الوصف</label><input type="text" id="eDesc" placeholder="وصف الخدمة..."></div>
     <div class="fg" style="margin-bottom:9px;"><label>التصنيف</label>
@@ -1428,10 +1436,22 @@ window.updateOrderTotal = () => {
   const cur=me?.currency||'LYD';
   const balLYD=me?.balance||0;
   const qty=parseInt(document.getElementById('oQty').value)||1;
-  const totalLYD=s.price*qty;
+  // سعر الجملة
+  const bulkMin=s.bulkMin||10;
+  const bulkPrice=s.bulkPrice||0;
+  const unitPrice=(bulkPrice>0&&qty>=bulkMin)?bulkPrice:s.price;
+  const totalLYD=unitPrice*qty;
   const afterLYD=balLYD-totalLYD;
   const dispTotal=cur==='USDT'?`${(totalLYD/usdtRate).toFixed(2)} USDT`:`${totalLYD.toLocaleString('ar-LY')} د.ل`;
   const dispAfter=cur==='USDT'?`${Math.max(0,afterLYD/usdtRate).toFixed(2)} USDT`:`${Math.max(0,afterLYD).toLocaleString('ar-LY')} د.ل`;
+  // إظهار السعر الحالي مع ملاحظة الجملة
+  const prEl=document.getElementById('oPr');
+  if(prEl){
+    const dispUnit=cur==='USDT'?(unitPrice/usdtRate).toFixed(2)+' USDT':unitPrice+' د.ل';
+    const bulkNote=(bulkPrice>0&&qty<bulkMin)?` <span style="color:var(--muted);font-size:0.72rem;">(${bulkMin}+ للجملة بـ${bulkPrice} د.ل)</span>`:'';
+    const bulkTag=(bulkPrice>0&&qty>=bulkMin)?` <span style="color:var(--green);font-size:0.72rem;">✅ سعر جملة</span>`:'';
+    prEl.innerHTML=dispUnit+bulkNote+bulkTag;
+  }
   document.getElementById('oTotal').textContent=dispTotal;
   const ae=document.getElementById('oAft');
   ae.textContent=dispAfter;
@@ -1449,7 +1469,10 @@ window.confirmOrder = async () => {
   const cur=me.currency||'LYD';
   const qty=parseInt(document.getElementById('oQty').value)||1;
   const balLYD=me.balance||0;
-  const totalLYD=s.price*qty;
+  const bulkMin=s.bulkMin||10;
+  const bulkPrice=s.bulkPrice||0;
+  const unitPrice=(bulkPrice>0&&qty>=bulkMin)?bulkPrice:s.price;
+  const totalLYD=unitPrice*qty;
 
   // الخصم دائماً بالدينار
   const afterLYD=parseFloat((balLYD-totalLYD).toFixed(2));
@@ -1966,6 +1989,8 @@ window.addService=async()=>{
   const imgSrc=document.getElementById('imgPrev').src;
   await addDoc(svcCol,{
     name, price:parseFloat(price),
+    bulkPrice:parseFloat(document.getElementById('aBulkPrice').value)||0,
+    bulkMin:parseInt(document.getElementById('aBulkMin').value)||10,
     category:document.getElementById('aCat').value,
     icon:document.getElementById('aIcon').value,
     desc:document.getElementById('aDesc').value.trim(),
@@ -1994,6 +2019,8 @@ window.openEditSvc=fid=>{
   document.getElementById('eFid').value=fid;
   document.getElementById('eName').value=s.name||'';
   document.getElementById('ePrice').value=s.price||'';
+  document.getElementById('eBulkPrice').value=s.bulkPrice||0;
+  document.getElementById('eBulkMin').value=s.bulkMin||10;
   document.getElementById('eDesc').value=s.desc||'';
   document.getElementById('eCat').value=s.category||'إيجار أدوات';
   document.getElementById('efImei').checked=!!s.needImei;
@@ -2015,6 +2042,8 @@ window.saveEditSvc=async()=>{
   if(!name||!price){alert('يرجى إدخال الاسم والسعر');return;}
   await updateDoc(doc(db,'services',fid),{
     name, price:parseFloat(price),
+    bulkPrice:parseFloat(document.getElementById('eBulkPrice').value)||0,
+    bulkMin:parseInt(document.getElementById('eBulkMin').value)||10,
     desc:document.getElementById('eDesc').value.trim(),
     category:document.getElementById('eCat').value,
     needImei:document.getElementById('efImei').checked,
