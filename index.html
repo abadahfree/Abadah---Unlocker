@@ -193,6 +193,7 @@ textarea{resize:vertical;min-height:60px;}
     <div class="fg" style="margin-bottom:11px;text-align:right;"><label>البريد الإلكتروني</label><input type="email" id="liEmail" placeholder="example@email.com" style="text-align:center;"></div>
     <div class="fg" style="margin-bottom:18px;text-align:right;"><label>كلمة السر</label><input type="password" id="liPass" placeholder="••••••••" style="text-align:center;" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button onclick="doLogin()" class="btn-p" id="liBtn">🔓 تسجيل الدخول</button>
+    <button onclick="browseServices()" style="width:100%;margin-top:9px;padding:12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:11px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">🛍️ تصفح الخدمات بدون تسجيل</button>
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
       <span style="font-size:0.82rem;color:var(--muted);">ليس لديك حساب؟ </span>
       <button onclick="showRegister()" style="background:none;border:none;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">إنشاء حساب</button>
@@ -271,12 +272,18 @@ textarea{resize:vertical;min-height:60px;}
   <div class="user-bar">
     <div style="display:flex;align-items:center;gap:10px;">
       <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,153,204,0.1));border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;font-size:15px;">👤</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,153,204,0.1));border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;font-size:15px;">👤</div>
       <div>
         <div style="font-weight:700;font-size:0.88rem;" id="uName">—</div>
         <div style="font-size:0.72rem;color:var(--gold);" id="uBal">رصيد: 0 د.ل</div>
       </div>
     </div>
-    <button onclick="doLogout()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">خروج ←</button>
+    <div id="guestBtns" style="display:none;gap:6px;display:flex;">
+      <button onclick="showLogin()" style="padding:6px 13px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;font-weight:700;">🔓 دخول</button>
+      <button onclick="showRegister()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">📝 تسجيل</button>
+    </div>
+    <button id="logoutBtn" onclick="doLogout()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">خروج ←</button>
   </div>
 
   <!-- TABS -->
@@ -887,6 +894,25 @@ function hideLoad(){ hide('loadingScreen'); }
 function showLogin(){ hideLoad(); hide('registerScreen'); hide('pendingScreen'); hide('mainApp'); show('loginScreen'); }
 function showRegister(){ hide('loginScreen'); show('registerScreen'); }
 window.showLogin = showLogin;
+
+window.browseServices=()=>{
+  currentUser=null;
+  hide('loginScreen');
+  show('mainApp','block');
+  document.getElementById('uName').textContent='زائر';
+  document.getElementById('uBal').textContent='سجّل للطلب';
+  document.getElementById('guestBtns').style.display='flex';
+  document.getElementById('logoutBtn').style.display='none';
+  document.getElementById('adminTab').style.display='none';
+  document.getElementById('dashTab').style.display='none';
+  document.getElementById('clientsTab').style.display='none';
+  document.getElementById('filesTab').style.display='flex';
+  document.getElementById('account') && (document.querySelector('[onclick*="account"]').style.display='none');
+  document.querySelector('[onclick*="switchTab(\'account\')"]').style.display='none';
+  document.querySelector('[onclick*="switchTab(\'payment\')"]').style.display='none';
+  loadRealtime();
+  loadUsdtRate();
+};
 window.showRegister = showRegister;
 
 function showPending(){ hide('loginScreen'); hide('registerScreen'); show('pendingScreen'); }
@@ -899,6 +925,10 @@ function showApp(){
   document.getElementById('dashTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('clientsTab').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('filesTab').style.display = 'flex';
+  document.getElementById('guestBtns').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'block';
+  document.querySelector('[onclick*="switchTab(\'account\')"]').style.display='flex';
+  document.querySelector('[onclick*="switchTab(\'payment\')"]').style.display='flex';
   updateUserBar();
   loadRealtime();
   loadUsdtRate();
@@ -1273,6 +1303,10 @@ function renderServices(){
 
 // ===== ORDER =====
 window.openOrder = fid => {
+  if(!currentUser){
+    if(confirm('🔓 يجب تسجيل الدخول لطلب الخدمة\nهل تريد تسجيل الدخول الآن؟')) showLogin();
+    return;
+  }
   currentSvc=services.find(s=>s.fid===fid);
   if(!currentSvc) return;
   const s=currentSvc;
