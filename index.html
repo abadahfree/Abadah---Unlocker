@@ -315,8 +315,9 @@ textarea{resize:vertical;min-height:60px;}
   <div class="panel active" id="panel-services">
 
     <!-- سلايدر الدعايات -->
-    <div id="adsSlider" style="margin-bottom:13px;display:none;">
-      <div id="adsTrack" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px;"></div>
+    <div id="adsSlider" style="margin-bottom:13px;display:none;position:relative;">
+      <div id="adsTrack" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px;scroll-behavior:smooth;"></div>
+      <div style="display:flex;justify-content:center;gap:5px;margin-top:7px;" id="adsDots"></div>
     </div>
 
     <div class="sw" style="margin-bottom:13px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="clearTimeout(window._st);window._st=setTimeout(()=>{activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();},200)"></div>
@@ -1189,6 +1190,7 @@ window.delFile=async fid=>{
 function renderAdsSlider(){
   const track=document.getElementById('adsTrack');
   const slider=document.getElementById('adsSlider');
+  const dots=document.getElementById('adsDots');
   if(!track||!slider) return;
   if(!ads.length){slider.style.display='none';return;}
   slider.style.display='block';
@@ -1197,6 +1199,23 @@ function renderAdsSlider(){
       <img src="${a.url}" alt="${a.desc||''}" onerror="this.parentElement.style.display='none'">
       ${a.desc?`<div class="ad-cap">${a.desc}</div>`:''}
     </div>`).join('');
+  // نقاط التنقل
+  if(dots){
+    dots.innerHTML=ads.map((_,i)=>`<div onclick="goToAd(${i})" style="width:7px;height:7px;border-radius:50%;background:${i===0?'var(--cyan)':'var(--border)'};cursor:pointer;transition:background 0.3s;" id="dot-${i}"></div>`).join('');
+  }
+  // تحريك تلقائي
+  clearInterval(window._adsInterval);
+  let cur=0;
+  window.goToAd=(i)=>{
+    cur=i;
+    const slideW=track.offsetWidth+10;
+    track.scrollTo({left:slideW*i,behavior:'smooth'});
+    ads.forEach((_,j)=>{const d=document.getElementById('dot-'+j);if(d)d.style.background=j===i?'var(--cyan)':'var(--border)';});
+  };
+  window._adsInterval=setInterval(()=>{
+    cur=(cur+1)%ads.length;
+    window.goToAd(cur);
+  },3000);
 }
 
 function renderAdsList(){
