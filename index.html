@@ -517,7 +517,8 @@ textarea{resize:vertical;min-height:60px;}
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="saveTgConfig()" class="btn-p" style="flex:1;margin-top:0;">💾 حفظ</button>
-        <button onclick="testTg()" style="flex:1;padding:12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);border-radius:11px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">🧪 اختبار</button>
+        <button onclick="testTg()" style="flex:1;padding:12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);border-radius:11px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">🧪 اختبار TG</button>
+        <button onclick="testPushNotif()" style="flex:1;padding:12px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);border-radius:11px;color:var(--green);font-family:'Tajawal',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">🔔 اختبار إشعار</button>
       </div>
       <div id="tgStatus" style="font-size:0.78rem;margin-top:8px;text-align:center;min-height:16px;"></div>
     </div>
@@ -2137,6 +2138,20 @@ window.saveTgConfig=()=>{
   st.style.color='var(--green)'; st.textContent='✅ تم الحفظ!';
   setTimeout(()=>st.textContent='',2000);
 };
+window.testPushNotif = async () => {
+  const granted = await requestNotifPermission();
+  if(!granted){
+    alert('❌ الإشعارات محظورة!\n\nاذهب لإعدادات المتصفح وفعّل الإشعارات لهذا الموقع.');
+    return;
+  }
+  await sendPushNotif(
+    '🔔 اختبار - Abadah Unlocker',
+    'الإشعارات تعمل بشكل صحيح ✅'
+  );
+  document.getElementById('tgStatus').textContent = '✅ تم إرسال الإشعار - تحقق من شريط الإشعارات';
+  document.getElementById('tgStatus').style.color = 'var(--green)';
+};
+
 window.testTg=async()=>{
   const st=document.getElementById('tgStatus');
   st.style.color='var(--cyan)'; st.textContent='جاري الإرسال...';
@@ -2156,38 +2171,95 @@ async function sendTelegram(text){
 }
 
 // ===== WEB PUSH NOTIFICATIONS =====
+// Register inline Service Worker for push notifications
+async function registerSW(){
+  if(!('serviceWorker' in navigator)) return null;
+  try{
+    const swCode = `
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.matchAll({type:'window'}).then(cs=>{
+    for(const c of cs){ if(c.url&&'focus' in c) return c.focus(); }
+    if(clients.openWindow) return clients.openWindow('/');
+  }));
+});
+self.addEventListener('push', e => {
+  const d = e.data ? e.data.json() : {title:'Abadah Unlocker',body:'إشعار جديد'};
+  e.waitUntil(self.registration.showNotification(d.title,{body:d.body,icon:d.icon||'/favicon.ico',badge:'/favicon.ico',vibrate:[200,100,200],requireInteraction:false}));
+});
+self.addEventListener('message', e => {
+  if(e.data && e.data.type === 'SHOW_NOTIF'){
+    self.registration.showNotification(e.data.title, {
+      body: e.data.body,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔓</text></svg>',
+      vibrate: [200, 100, 200],
+      requireInteraction: false,
+      tag: 'abadah-' + Date.now()
+    });
+  }
+});`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    const reg = await navigator.serviceWorker.register(swUrl, {scope:'/'});
+    console.log('✅ Service Worker registered');
+    return reg;
+  } catch(e){
+    console.log('SW Error:', e);
+    return null;
+  }
+}
+
+let swRegistration = null;
+
 async function requestNotifPermission(){
   if(!('Notification' in window)) return false;
-  if(Notification.permission==='granted') return true;
-  if(Notification.permission==='denied') return false;
-  const perm = await Notification.requestPermission();
-  return perm==='granted';
+  if(Notification.permission === 'denied') return false;
+  let perm = Notification.permission;
+  if(perm !== 'granted'){
+    perm = await Notification.requestPermission();
+  }
+  if(perm === 'granted'){
+    swRegistration = await registerSW();
+    return true;
+  }
+  return false;
 }
 
-function sendPushNotif(title, body, icon='🔓'){
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
-  try{
-    const n = new Notification(title, {
-      body,
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔓</text></svg>',
-      badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
-      tag: 'abadah-notif',
-      requireInteraction: false,
-      silent: false,
-      vibrate: [200, 100, 200]
-    });
-    n.onclick = () => { window.focus(); n.close(); };
-    setTimeout(() => n.close(), 8000);
-  } catch(e) { console.log('Push notif error:', e); }
-}
+async function sendPushNotif(title, body){
+  if(!('Notification' in window)) return;
 
-// طلب الإذن عند تسجيل دخول المسؤول
-async function initAdminNotifs(){
-  if(currentUser?.isAdmin){
-    const granted = await requestNotifPermission();
-    if(granted){
-      console.log('✅ إشعارات الأندرويد مفعّلة');
-    }
+  // محاولة عبر Service Worker أولاً (أفضل على الأندرويد)
+  if(swRegistration && Notification.permission === 'granted'){
+    try{
+      // أرسل رسالة للـ SW ليعرض الإشعار
+      const sw = swRegistration.active || swRegistration.installing || swRegistration.waiting;
+      if(sw){
+        sw.postMessage({type:'SHOW_NOTIF', title, body});
+        return;
+      }
+      // أو استخدم showNotification مباشرة
+      await swRegistration.showNotification(title, {
+        body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔓</text></svg>',
+        vibrate: [200, 100, 200],
+        requireInteraction: false,
+        tag: 'abadah-' + Date.now()
+      });
+      return;
+    } catch(e){ console.log('SW notif error:', e); }
+  }
+
+  // Fallback: إشعار عادي
+  if(Notification.permission === 'granted'){
+    try{
+      const n = new Notification(title, {
+        body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔓</text></svg>',
+        tag: 'abadah-' + Date.now(),
+        vibrate: [200, 100, 200]
+      });
+      setTimeout(() => n.close(), 8000);
+    } catch(e){ console.log('Notif error:', e); }
   }
 }
 
