@@ -195,11 +195,6 @@ textarea{resize:vertical;min-height:60px;}
       <div style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:10px;animation:loadBar 1.5s ease-in-out infinite;"></div>
     </div>
   </div>
-
-  <div style="font-size:3rem;">🔓</div>
-  <div style="font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--cyan);">ABADAH UNLOCKER</div>
-  <div class="spinner"></div>
-  <div style="color:var(--muted);font-size:0.82rem;">جاري التحميل...</div>
 </div>
 
 <!-- LOGIN -->
@@ -734,22 +729,6 @@ textarea{resize:vertical;min-height:60px;}
       <div style="text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:4px;" id="oNm">—</div>
       <div style="text-align:center;color:var(--muted);font-size:0.8rem;margin-bottom:16px;" id="oDsc">—</div>
 
-      <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:11px;padding:13px;margin-bottom:11px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
-          <span style="color:var(--muted);font-size:0.82rem;">رصيدك</span>
-          <span style="font-family:'Orbitron',sans-serif;color:var(--gold);font-weight:700;font-size:0.9rem;" id="oBal">0 د.ل</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
-          <span style="color:var(--muted);font-size:0.82rem;">سعر الخدمة</span>
-          <span style="font-family:'Orbitron',sans-serif;color:var(--red);font-weight:700;font-size:0.9rem;" id="oPr">0 د.ل</span>
-        </div>
-        <div style="height:1px;background:var(--border);margin:7px 0;"></div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="color:var(--muted);font-size:0.82rem;">الرصيد بعد الخصم</span>
-          <span style="font-family:'Orbitron',sans-serif;font-weight:700;font-size:0.9rem;" id="oAft">0 د.ل</span>
-        </div>
-      </div>
-
       <div class="fg" style="margin-bottom:11px;">
         <label>🔢 الكمية (Credits)</label>
         <input type="number" id="oQty" placeholder="1" min="1" value="1" oninput="updateOrderTotal()">
@@ -1032,7 +1011,6 @@ function loadRealtime(){
   });
   onSnapshot(query(ordCol, orderBy('createdAt','desc')), snap=>{
     orders=snap.docs.map(d=>({...d.data(),fid:d.id}));
-    console.log('📦 orders loaded:', orders.length, orders);
     renderMyOrders(); renderMyTransactions(); renderAllOrders();
     if(currentUser?.isAdmin) updateDashboard();
   });
