@@ -1543,8 +1543,10 @@ window.openFolderOrder = (folderFid, planIndex) => {
     price: plan.price,
     icon: folder.icon||'⚡',
     bulkPrice:0, bulkMin:999,
-    needImei:false,needSn:false,needUsername:false,needEmail:false,
-    needPhone:false,needPass:false,needLookscreen:false,needAnydesk:false,needUltraviewer:false,
+    needImei:!!plan.needImei, needSn:!!plan.needSn,
+    needUsername:!!plan.needUsername, needEmail:!!plan.needEmail,
+    needPhone:!!plan.needPhone, needPass:!!plan.needPass,
+    needLookscreen:false, needAnydesk:false, needUltraviewer:false,
     _isFolderPlan: true, _folderFid: folderFid, _planIndex: parseInt(planIndex),
     _folderName: folder.name, _planDuration: plan.duration
   };
@@ -1563,7 +1565,21 @@ window.openFolderOrder = (folderFid, planIndex) => {
   document.getElementById('oPr').textContent = dispPrice;
   document.getElementById('oQty').value = '1';
   document.getElementById('oNote').value = '';
-  document.getElementById('oFieldsBox').style.display = 'none';
+
+  // إظهار الحقول المطلوبة من الخطة
+  const hasFields = plan.needImei||plan.needSn||plan.needUsername||plan.needEmail||plan.needPhone||plan.needPass;
+  document.getElementById('oFieldsBox').style.display = hasFields?'block':'none';
+  const showF=(id,show)=>{const b=document.getElementById(id);if(b)b.style.display=show?'block':'none';};
+  showF('oImeiBox',plan.needImei); if(document.getElementById('oImei'))document.getElementById('oImei').value='';
+  showF('oSnBox',plan.needSn); if(document.getElementById('oSn'))document.getElementById('oSn').value='';
+  showF('oUsernameBox',plan.needUsername); if(document.getElementById('oUsername'))document.getElementById('oUsername').value='';
+  showF('oEmailBox',plan.needEmail); if(document.getElementById('oEmail'))document.getElementById('oEmail').value='';
+  showF('oPhoneBox',plan.needPhone); if(document.getElementById('oPhone'))document.getElementById('oPhone').value='';
+  showF('oPassBox',plan.needPass); if(document.getElementById('oPass'))document.getElementById('oPass').value='';
+  showF('oLookscreenBox',false);
+  showF('oAnyDeskBox',false);
+  showF('oUltraViewerBox',false);
+
   document.getElementById('oS1').style.display = 'block';
   document.getElementById('oS2').style.display = 'none';
   document.getElementById('oInsuf').style.display = 'none';
@@ -1788,8 +1804,18 @@ window.saveNewPlan = async () => {
   if(!duration||!price){alert('يرجى إدخال المدة والسعر');return;}
   const folder = toolFolders.find(f=>f.fid===_currentFolderFid);
   if(!folder) return;
-  const plans = [...(folder.plans||[]), {duration, price, desc}];
+  const planFields = {
+    needEmail: document.getElementById('planNeedEmail').checked,
+    needUsername: document.getElementById('planNeedUsername').checked,
+    needPass: document.getElementById('planNeedPass').checked,
+    needPhone: document.getElementById('planNeedPhone').checked,
+    needImei: document.getElementById('planNeedImei').checked,
+    needSn: document.getElementById('planNeedSn').checked,
+  };
+  const plans = [...(folder.plans||[]), {duration, price, desc, ...planFields}];
   await updateDoc(doc(db,'toolFolders',_currentFolderFid),{plans});
+  // إعادة تعيين الحقول
+  ['planNeedEmail','planNeedUsername','planNeedPass','planNeedPhone','planNeedImei','planNeedSn'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('addPlanMo').classList.remove('open');
 };
 
@@ -3048,7 +3074,7 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
 
 <!-- ADD PLAN MODAL -->
 <div class="mo" id="addPlanMo" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="md" style="max-width:360px;">
+  <div class="md" style="max-width:380px;">
     <button class="mc" onclick="document.getElementById('addPlanMo').classList.remove('open')">✕</button>
     <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;color:var(--gold);">➕ إضافة خطة اشتراك</div>
     <div id="addPlanFolderName" style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;"></div>
@@ -3060,9 +3086,20 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
       <label>💰 السعر (د.ل) *</label>
       <input type="number" id="planPrice" placeholder="مثال: 50" min="1">
     </div>
-    <div class="fg" style="margin-bottom:14px;">
+    <div class="fg" style="margin-bottom:9px;">
       <label>📝 ملاحظة (اختياري)</label>
       <input type="text" id="planDesc" placeholder="تفاصيل إضافية...">
+    </div>
+    <div style="margin-bottom:13px;">
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:7px;">📋 الحقول المطلوبة من الزبون:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <label class="field-toggle"><input type="checkbox" id="planNeedEmail"> 📧 Email</label>
+        <label class="field-toggle"><input type="checkbox" id="planNeedUsername"> 👤 Username</label>
+        <label class="field-toggle"><input type="checkbox" id="planNeedPass"> 🔑 كلمة السر</label>
+        <label class="field-toggle"><input type="checkbox" id="planNeedPhone"> 📞 الهاتف</label>
+        <label class="field-toggle"><input type="checkbox" id="planNeedImei"> 📱 IMEI</label>
+        <label class="field-toggle"><input type="checkbox" id="planNeedSn"> 🔢 SN</label>
+      </div>
     </div>
     <button onclick="saveNewPlan()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ الخطة</button>
   </div>
