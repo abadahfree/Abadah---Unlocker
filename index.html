@@ -1574,47 +1574,123 @@ window.openFolderOrder = (folderFid, planIndex) => {
 
 // ===== تحويل خدمة موجودة إلى مجلد =====
 let _convertSvcFid = null;
+let _convertMode = 'existing'; // 'existing' أو 'new'
+
 window.openConvertToFolder = fid => {
   const svc = services.find(s=>s.fid===fid);
   if(!svc) return;
   _convertSvcFid = fid;
+  _convertMode = toolFolders.length ? 'existing' : 'new';
+
   document.getElementById('convertSvcName').textContent = svc.name;
-  document.getElementById('convertFolderName').value = svc.name;
-  document.getElementById('convertFolderIcon').value = svc.icon||'⚡';
   document.getElementById('convertDuration').value = '';
   document.getElementById('convertPrice').value = svc.price||'';
   document.getElementById('convertDesc').value = svc.desc||'';
-  // صورة الخدمة إن وجدت
+
+  // بناء قائمة المجلدات الموجودة
+  const folderList = document.getElementById('convertFolderList');
+  if(toolFolders.length){
+    folderList.innerHTML = toolFolders.map(f=>`
+      <div onclick="selectConvertFolder('${f.fid}',this)"
+        style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.15s;margin-bottom:7px;"
+        onmouseover="this.style.borderColor='var(--gold)'" onmouseout="if(!this.classList.contains('sel-folder'))this.style.borderColor='var(--border)'">
+        ${f.image
+          ?`<img src="${f.image}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;">`
+          :`<div style="width:36px;height:36px;border-radius:8px;background:rgba(245,200,66,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${f.icon||'⚡'}</div>`}
+        <div style="flex:1;">
+          <div style="font-size:0.88rem;font-weight:700;">${f.name}</div>
+          <div style="font-size:0.7rem;color:var(--muted);">${(f.plans||[]).length} خطة موجودة</div>
+        </div>
+        <div id="chk_${f.fid}" style="font-size:1.1rem;opacity:0;">✅</div>
+      </div>`).join('');
+    document.getElementById('convertExistingSection').style.display = 'block';
+    document.getElementById('convertNewSection').style.display = 'none';
+    document.getElementById('convertModeToggle').style.display = 'block';
+    document.getElementById('convertModeBtn').textContent = '➕ إنشاء مجلد جديد بدلاً';
+    _convertMode = 'existing';
+    _selectedFolderFid = null;
+  } else {
+    document.getElementById('convertExistingSection').style.display = 'none';
+    document.getElementById('convertNewSection').style.display = 'block';
+    document.getElementById('convertModeToggle').style.display = 'none';
+    _convertMode = 'new';
+  }
+
+  // صورة افتراضية من الخدمة
   const prev = document.getElementById('convertImgPrev');
   const ph = document.getElementById('convertImgPH');
   if(svc.image){ prev.src=svc.image; prev.style.display='block'; ph.style.display='none'; }
   else { prev.src=''; prev.style.display='none'; ph.style.display='block'; }
+  document.getElementById('convertFolderName').value = svc.name;
+  document.getElementById('convertFolderIcon').value = svc.icon||'⚡';
   document.getElementById('convertToFolderMo').classList.add('open');
+};
+
+let _selectedFolderFid = null;
+window.selectConvertFolder = (fid, el) => {
+  _selectedFolderFid = fid;
+  document.querySelectorAll('#convertFolderList > div').forEach(d=>{
+    d.classList.remove('sel-folder');
+    d.style.borderColor = 'var(--border)';
+    d.style.background = '';
+    const chk = d.querySelector('[id^="chk_"]');
+    if(chk) chk.style.opacity = '0';
+  });
+  el.classList.add('sel-folder');
+  el.style.borderColor = 'var(--gold)';
+  el.style.background = 'rgba(245,200,66,0.06)';
+  const chk = document.getElementById('chk_'+fid);
+  if(chk) chk.style.opacity = '1';
+};
+
+window.toggleConvertMode = () => {
+  if(_convertMode === 'existing'){
+    _convertMode = 'new';
+    document.getElementById('convertExistingSection').style.display = 'none';
+    document.getElementById('convertNewSection').style.display = 'block';
+    document.getElementById('convertModeBtn').textContent = '📁 اختر مجلد موجود بدلاً';
+  } else {
+    _convertMode = 'existing';
+    document.getElementById('convertExistingSection').style.display = 'block';
+    document.getElementById('convertNewSection').style.display = 'none';
+    document.getElementById('convertModeBtn').textContent = '➕ إنشاء مجلد جديد بدلاً';
+  }
 };
 
 window.confirmConvertToFolder = async () => {
   const svc = services.find(s=>s.fid===_convertSvcFid);
   if(!svc) return;
-  const folderName = document.getElementById('convertFolderName').value.trim();
-  const icon = document.getElementById('convertFolderIcon').value.trim()||'⚡';
   const duration = document.getElementById('convertDuration').value.trim();
   const price = parseFloat(document.getElementById('convertPrice').value)||0;
   const desc = document.getElementById('convertDesc').value.trim();
-  if(!folderName){alert('يرجى إدخال اسم المجلد');return;}
   if(!duration){alert('يرجى إدخال مدة الاشتراك');return;}
   if(!price){alert('يرجى إدخال السعر');return;}
 
   const btn = document.getElementById('convertConfirmBtn');
   btn.disabled=true; btn.textContent='جاري التحويل...';
   try{
-    const imgSrc = document.getElementById('convertImgPrev').src;
-    const image = imgSrc && imgSrc.startsWith('data:') ? imgSrc : (svc.image||null);
-    const plans = [{duration, price, desc}];
-    await addDoc(toolFoldersCol, {name:folderName, icon, image, plans, createdAt:Date.now()});
-    // إخفاء الخدمة الأصلية (عدم حذفها للحفاظ على سجل الطلبات)
-    await updateDoc(doc(db,'services',_convertSvcFid),{active:false, _convertedToFolder:true});
-    document.getElementById('convertToFolderMo').classList.remove('open');
-    alert(`✅ تم تحويل "${folderName}" إلى مجلد!\nالخدمة الأصلية تم إخفاؤها.`);
+    if(_convertMode === 'existing'){
+      // إضافة خطة لمجلد موجود
+      if(!_selectedFolderFid){alert('يرجى اختيار مجلد أولاً');btn.disabled=false;btn.textContent='✅ تحويل لمجلد';return;}
+      const folder = toolFolders.find(f=>f.fid===_selectedFolderFid);
+      if(!folder) return;
+      const plans = [...(folder.plans||[]), {duration, price, desc}];
+      await updateDoc(doc(db,'toolFolders',_selectedFolderFid),{plans});
+      await updateDoc(doc(db,'services',_convertSvcFid),{active:false, _convertedToFolder:true});
+      document.getElementById('convertToFolderMo').classList.remove('open');
+      alert(`✅ تمت إضافة الخطة إلى مجلد "${folder.name}"!\nالخدمة الأصلية تم إخفاؤها.`);
+    } else {
+      // إنشاء مجلد جديد
+      const folderName = document.getElementById('convertFolderName').value.trim();
+      const icon = document.getElementById('convertFolderIcon').value.trim()||'⚡';
+      if(!folderName){alert('يرجى إدخال اسم المجلد');btn.disabled=false;btn.textContent='✅ تحويل لمجلد';return;}
+      const imgSrc = document.getElementById('convertImgPrev').src;
+      const image = imgSrc && imgSrc.startsWith('data:') ? imgSrc : (svc.image||null);
+      await addDoc(toolFoldersCol, {name:folderName, icon, image, plans:[{duration, price, desc}], createdAt:Date.now()});
+      await updateDoc(doc(db,'services',_convertSvcFid),{active:false, _convertedToFolder:true});
+      document.getElementById('convertToFolderMo').classList.remove('open');
+      alert(`✅ تم إنشاء مجلد "${folderName}" وإضافة الخطة!\nالخدمة الأصلية تم إخفاؤها.`);
+    }
   }catch(e){ alert('حدث خطأ، حاول مجدداً'); console.error(e); }
   finally{ btn.disabled=false; btn.textContent='✅ تحويل لمجلد'; }
 };
@@ -2923,31 +2999,46 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
 </script>
 <!-- CONVERT TO FOLDER MODAL -->
 <div class="mo" id="convertToFolderMo" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="md" style="max-width:400px;">
+  <div class="md" style="max-width:420px;">
     <button class="mc" onclick="document.getElementById('convertToFolderMo').classList.remove('open')">✕</button>
     <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;color:var(--gold);">📁 تحويل إلى مجلد</div>
     <div id="convertSvcName" style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;"></div>
 
-    <!-- صورة المجلد -->
-    <div style="margin-bottom:12px;">
-      <label style="font-size:0.76rem;color:var(--muted);font-weight:600;display:block;margin-bottom:6px;">🖼️ صورة المجلد (اختياري)</label>
-      <div onclick="document.getElementById('convertImgInput').click()" style="border:2px dashed var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div id="convertImgPH" style="color:var(--muted);font-size:0.8rem;"><div style="font-size:1.4rem;margin-bottom:2px;">🖼️</div>اضغط لرفع صورة</div>
-        <img id="convertImgPrev" src="" style="display:none;max-height:90px;border-radius:7px;max-width:100%;object-fit:cover;">
-        <input type="file" id="convertImgInput" accept="image/*" style="display:none" onchange="previewConvertImg(this)">
+    <!-- زر التبديل بين الوضعين -->
+    <div id="convertModeToggle" style="margin-bottom:13px;">
+      <button id="convertModeBtn" onclick="toggleConvertMode()" style="width:100%;padding:9px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.2);border-radius:9px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">➕ إنشاء مجلد جديد بدلاً</button>
+    </div>
+
+    <!-- قسم المجلدات الموجودة -->
+    <div id="convertExistingSection">
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:9px;font-weight:700;">📁 اختر المجلد:</div>
+      <div id="convertFolderList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;"></div>
+    </div>
+
+    <!-- قسم مجلد جديد -->
+    <div id="convertNewSection" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.76rem;color:var(--muted);font-weight:600;display:block;margin-bottom:6px;">🖼️ صورة المجلد (اختياري)</label>
+        <div onclick="document.getElementById('convertImgInput').click()" style="border:2px dashed var(--border);border-radius:10px;padding:11px;text-align:center;cursor:pointer;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div id="convertImgPH" style="color:var(--muted);font-size:0.8rem;"><div style="font-size:1.3rem;margin-bottom:2px;">🖼️</div>اضغط لرفع صورة</div>
+          <img id="convertImgPrev" src="" style="display:none;max-height:80px;border-radius:7px;max-width:100%;object-fit:cover;">
+          <input type="file" id="convertImgInput" accept="image/*" style="display:none" onchange="previewConvertImg(this)">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:9px;">
+        <div class="fg" style="flex:1;"><label>📁 اسم المجلد *</label><input type="text" id="convertFolderName" placeholder="مثال: Sigma Tool"></div>
+        <div class="fg" style="width:75px;"><label>أيقونة</label><input type="text" id="convertFolderIcon" placeholder="⚡" style="text-align:center;"></div>
       </div>
     </div>
 
-    <div style="display:flex;gap:8px;margin-bottom:9px;">
-      <div class="fg" style="flex:1;"><label>📁 اسم المجلد *</label><input type="text" id="convertFolderName" placeholder="مثال: Sigma Tool"></div>
-      <div class="fg" style="width:75px;"><label>أيقونة</label><input type="text" id="convertFolderIcon" placeholder="⚡" style="text-align:center;"></div>
-    </div>
+    <!-- خطة الاشتراك (مشتركة بين الوضعين) -->
     <div style="background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:11px;margin-bottom:11px;">
-      <div style="font-size:0.76rem;color:var(--gold);font-weight:700;margin-bottom:8px;">⏱️ أول خطة اشتراك</div>
-      <div class="fg" style="margin-bottom:7px;"><label>المدة *</label><input type="text" id="convertDuration" placeholder="مثال: 3 شهور"></div>
+      <div style="font-size:0.76rem;color:var(--gold);font-weight:700;margin-bottom:8px;">⏱️ خطة الاشتراك المضافة</div>
+      <div class="fg" style="margin-bottom:7px;"><label>المدة *</label><input type="text" id="convertDuration" placeholder="مثال: 3 شهور / 6 شهور / سنة"></div>
       <div class="fg" style="margin-bottom:7px;"><label>السعر (د.ل) *</label><input type="number" id="convertPrice" placeholder="50" min="1"></div>
       <div class="fg"><label>ملاحظة (اختياري)</label><input type="text" id="convertDesc" placeholder="تفاصيل..."></div>
     </div>
+
     <div style="background:rgba(255,68,68,0.06);border:1px solid rgba(255,68,68,0.15);border-radius:9px;padding:9px;margin-bottom:12px;font-size:0.75rem;color:var(--muted);">
       ⚠️ الخدمة الأصلية ستُخفى تلقائياً بعد التحويل (سجل الطلبات القديم يبقى)
     </div>
