@@ -2747,25 +2747,19 @@ window.testTg=async()=>{
 async function sendTelegram(text){
   if(!tgToken||!tgChatId) return false;
   try{
-    const cleanText=text.replace(/\*/g,'<b>').replace(/\*/g,'</b>');
-    const r=await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`,{
+    const r=await fetch('https://wandering-grass-b2f6.abadah19.workers.dev/',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        chat_id:tgChatId,
-        text:text.replace(/\*/g,'').replace(/_/g,'').replace(/`/g,''),
-        parse_mode:'HTML'
-      })
+      body:JSON.stringify({token:tgToken, chat_id:tgChatId, text:text.replace(/[*_`]/g,'')})
     });
     return r.ok;
   }catch(e){
-    // محاولة ثانية بعد ثانية
     try{
       await new Promise(r=>setTimeout(r,1000));
-      const r2=await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`,{
+      const r2=await fetch('https://wandering-grass-b2f6.abadah19.workers.dev/',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({chat_id:tgChatId,text:text.replace(/[*_`]/g,'')})
+        body:JSON.stringify({token:tgToken, chat_id:tgChatId, text:text.replace(/[*_`]/g,'')})
       });
       return r2.ok;
     }catch{return false;}
