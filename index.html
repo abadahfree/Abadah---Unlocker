@@ -1757,9 +1757,13 @@ function renderToolFoldersAdmin(){
             <div>
               <span style="font-size:0.85rem;font-weight:700;">⏱️ ${plan.duration}</span>
               ${plan.desc?`<span style="font-size:0.72rem;color:var(--muted);margin-right:6px;">— ${plan.desc}</span>`:''}
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">
+                ${plan.needEmail?'📧 ':''}${plan.needUsername?'👤 ':''}${plan.needPass?'🔑 ':''}${plan.needPhone?'📞 ':''}${plan.needImei?'📱 ':''}${plan.needSn?'🔢 ':''}
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;">
+            <div style="display:flex;align-items:center;gap:5px;">
               <span style="font-family:'Orbitron',sans-serif;font-size:0.88rem;color:var(--gold);font-weight:700;">${plan.price} د.ل</span>
+              <button class="ib" onclick="openEditPlan('${folder.fid}',${pi})" style="color:var(--gold);border-color:rgba(245,200,66,0.3);width:24px;height:24px;font-size:11px;">✏️</button>
               <button class="ib del" onclick="delPlan('${folder.fid}',${pi})" style="width:24px;height:24px;font-size:11px;">🗑</button>
             </div>
           </div>`).join('')}
@@ -1817,6 +1821,49 @@ window.saveNewPlan = async () => {
   // إعادة تعيين الحقول
   ['planNeedEmail','planNeedUsername','planNeedPass','planNeedPhone','planNeedImei','planNeedSn'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('addPlanMo').classList.remove('open');
+};
+
+// تعديل خطة
+window.openEditPlan = (folderFid, planIndex) => {
+  const folder = toolFolders.find(f=>f.fid===folderFid);
+  if(!folder) return;
+  const plan = (folder.plans||[])[parseInt(planIndex)];
+  if(!plan) return;
+  document.getElementById('editPlanFolderFid').value = folderFid;
+  document.getElementById('editPlanIndex').value = planIndex;
+  document.getElementById('editPlanDuration').value = plan.duration||'';
+  document.getElementById('editPlanPrice').value = plan.price||'';
+  document.getElementById('editPlanDesc').value = plan.desc||'';
+  document.getElementById('epNeedEmail').checked = !!plan.needEmail;
+  document.getElementById('epNeedUsername').checked = !!plan.needUsername;
+  document.getElementById('epNeedPass').checked = !!plan.needPass;
+  document.getElementById('epNeedPhone').checked = !!plan.needPhone;
+  document.getElementById('epNeedImei').checked = !!plan.needImei;
+  document.getElementById('epNeedSn').checked = !!plan.needSn;
+  document.getElementById('editPlanMo').classList.add('open');
+};
+
+window.saveEditPlan = async () => {
+  const folderFid = document.getElementById('editPlanFolderFid').value;
+  const planIndex = parseInt(document.getElementById('editPlanIndex').value);
+  const duration = document.getElementById('editPlanDuration').value.trim();
+  const price = parseFloat(document.getElementById('editPlanPrice').value)||0;
+  if(!duration||!price){alert('يرجى إدخال المدة والسعر');return;}
+  const folder = toolFolders.find(f=>f.fid===folderFid);
+  if(!folder) return;
+  const plans = [...(folder.plans||[])];
+  plans[planIndex] = {
+    duration, price,
+    desc: document.getElementById('editPlanDesc').value.trim(),
+    needEmail: document.getElementById('epNeedEmail').checked,
+    needUsername: document.getElementById('epNeedUsername').checked,
+    needPass: document.getElementById('epNeedPass').checked,
+    needPhone: document.getElementById('epNeedPhone').checked,
+    needImei: document.getElementById('epNeedImei').checked,
+    needSn: document.getElementById('epNeedSn').checked,
+  };
+  await updateDoc(doc(db,'toolFolders',folderFid),{plans});
+  document.getElementById('editPlanMo').classList.remove('open');
 };
 
 // حذف خطة
@@ -3102,6 +3149,40 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
       </div>
     </div>
     <button onclick="saveNewPlan()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ الخطة</button>
+  </div>
+</div>
+
+<!-- EDIT PLAN MODAL -->
+<div class="mo" id="editPlanMo" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="md" style="max-width:380px;">
+    <button class="mc" onclick="document.getElementById('editPlanMo').classList.remove('open')">✕</button>
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--gold);">✏️ تعديل خطة اشتراك</div>
+    <input type="hidden" id="editPlanFolderFid">
+    <input type="hidden" id="editPlanIndex">
+    <div class="fg" style="margin-bottom:9px;">
+      <label>⏱️ المدة *</label>
+      <input type="text" id="editPlanDuration" placeholder="مثال: 3 شهور / 6 شهور / سنة">
+    </div>
+    <div class="fg" style="margin-bottom:9px;">
+      <label>💰 السعر (د.ل) *</label>
+      <input type="number" id="editPlanPrice" placeholder="مثال: 50" min="1">
+    </div>
+    <div class="fg" style="margin-bottom:9px;">
+      <label>📝 ملاحظة (اختياري)</label>
+      <input type="text" id="editPlanDesc" placeholder="تفاصيل إضافية...">
+    </div>
+    <div style="margin-bottom:13px;">
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:7px;">📋 الحقول المطلوبة من الزبون:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <label class="field-toggle"><input type="checkbox" id="epNeedEmail"> 📧 Email</label>
+        <label class="field-toggle"><input type="checkbox" id="epNeedUsername"> 👤 Username</label>
+        <label class="field-toggle"><input type="checkbox" id="epNeedPass"> 🔑 كلمة السر</label>
+        <label class="field-toggle"><input type="checkbox" id="epNeedPhone"> 📞 الهاتف</label>
+        <label class="field-toggle"><input type="checkbox" id="epNeedImei"> 📱 IMEI</label>
+        <label class="field-toggle"><input type="checkbox" id="epNeedSn"> 🔢 SN</label>
+      </div>
+    </div>
+    <button onclick="saveEditPlan()" class="btn-p" style="width:100%;margin-top:0;">💾 حفظ التعديلات</button>
   </div>
 </div>
 
