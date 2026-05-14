@@ -671,6 +671,17 @@ textarea{resize:vertical;min-height:60px;}
 
     <!-- طلبات التسجيل -->
     <!-- إعداد تيليغرام -->
+    <!-- إدارة Live Service Status -->
+    <div class="adm-form" style="border-color:rgba(0,230,118,0.25);background:rgba(0,230,118,0.03);margin-bottom:14px;">
+      <div class="sec-title">🟢 إدارة Live Service Status</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:11px;">أضف الخدمات التي تريد إظهارها في الصفحة الرئيسية</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" id="liveStatusName" placeholder="اسم الخدمة..." style="flex:1;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.86rem;">
+        <button onclick="addLiveStatus()" style="padding:10px 16px;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.3);border-radius:10px;color:var(--green);font-family:'Tajawal',sans-serif;font-weight:700;cursor:pointer;white-space:nowrap;">➕ إضافة</button>
+      </div>
+      <div id="liveStatusAdminList"></div>
+    </div>
+
     <div class="adm-form tg-setup" id="tgSetupBox">
       <div class="sec-title">🤖 إعداد إشعارات تيليغرام</div>
       <div style="font-size:0.78rem;color:var(--muted);margin-bottom:11px;line-height:1.7;">
