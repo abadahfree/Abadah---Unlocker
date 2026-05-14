@@ -340,17 +340,7 @@ textarea{resize:vertical;min-height:60px;}
           <button onclick="switchTab('services')" style="padding:9px 16px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border:none;border-radius:9px;color:#000;font-family:'Tajawal',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;">⚙️ تصفح الخدمات</button>
           <button onclick="switchTab('payment')" style="padding:9px 14px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.8rem;cursor:pointer;">💳 الدفع</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
-          <div style="display:flex;">
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);border:2px solid var(--bg);margin-right:-6px;display:flex;align-items:center;justify-content:center;font-size:10px;">👤</div>
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:2px solid var(--bg);margin-right:-6px;display:flex;align-items:center;justify-content:center;font-size:10px;">👤</div>
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#10b981,#06b6d4);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;">+</div>
-          </div>
-          <div>
-            <div style="font-size:0.7rem;color:var(--gold);">★★★★★</div>
-            <div style="font-size:0.65rem;color:var(--muted);">Trusted by 1,000+ customers</div>
-          </div>
-        </div>
+
       </div>
 
       <!-- Live Status -->
@@ -536,43 +526,97 @@ textarea{resize:vertical;min-height:60px;}
 
   <!-- DASHBOARD PANEL - مستقل خارج الإدارة -->
   <div class="panel" id="panel-dashboard">
-    <div class="sec-title" style="margin-bottom:13px;">📊 لوحة المعلومات</div>
 
-    <!-- DEBUG BOX مؤقت -->
-    <div id="debugBox" style="background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:11px;padding:13px;margin-bottom:14px;font-size:0.78rem;color:var(--text2);display:none;">
-      <div style="font-weight:700;color:var(--red);margin-bottom:7px;">🔍 معلومات تشخيص</div>
-      <div id="debugContent"></div>
+    <!-- هيدر الداشبورد -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:1.2rem;font-weight:900;margin-bottom:4px;">Dashboard</div>
+      <div style="font-size:0.78rem;color:var(--muted);">Quick overview of your sales, orders &amp; activities</div>
     </div>
 
-    <!-- إحصاء سريع -->
-    <div class="dash-grid">
-      <div class="dash-card dc1"><div class="dash-ic">📦</div><div class="dash-num" id="dTotalOrders">0</div><div class="dash-lbl">إجمالي الطلبات</div><div class="dash-sub" id="dTodayOrders">↑ اليوم: 0</div></div>
-      <div class="dash-card dc2"><div class="dash-ic">💰</div><div class="dash-num" id="dRevenue">0</div><div class="dash-lbl">الإيرادات د.ل</div><div class="dash-sub" id="dTodayRev">↑ اليوم: 0</div></div>
-      <div class="dash-card dc3"><div class="dash-ic">👥</div><div class="dash-num" id="dClients">0</div><div class="dash-lbl">الزبائن النشطين</div><div class="dash-sub" id="dNewClients">جديد: 0</div></div>
-      <div class="dash-card dc4"><div class="dash-ic">⏳</div><div class="dash-num" id="dPending">0</div><div class="dash-lbl">طلبات معلقة</div><div class="dash-sub dn">تحتاج موافقة</div></div>
-    </div>
+    <!-- بطاقات الإحصاء الرئيسية -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
 
-    <div class="dash-two">
-      <div class="dash-panel">
-        <div class="dash-ptitle">📋 الطلبات الأخيرة</div>
-        <div id="dashRecentOrders"><div class="empty"><div class="ei">📦</div><h3>لا توجد طلبات بعد</h3></div></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div class="dash-panel">
-          <div class="dash-ptitle">📊 إيرادات الخدمات</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
           <div>
-            <div class="rev-bar"><div class="rev-lbl"><span>خدمات FRP</span><span style="color:var(--cyan);" id="revFRP">0 د.ل</span></div><div class="rev-track"><div class="rev-fill" id="barFRP" style="width:0%;background:linear-gradient(90deg,var(--cyan),rgba(0,212,255,0.3));"></div></div></div>
-            <div class="rev-bar"><div class="rev-lbl"><span>خدمات iCloud</span><span style="color:var(--gold);" id="revCloud">0 د.ل</span></div><div class="rev-track"><div class="rev-fill" id="barCloud" style="width:0%;background:linear-gradient(90deg,var(--gold),rgba(245,200,66,0.3));"></div></div></div>
-            <div class="rev-bar"><div class="rev-lbl"><span>إيجار أدوات</span><span style="color:var(--green);" id="revTools">0 د.ل</span></div><div class="rev-track"><div class="rev-fill" id="barTools" style="width:0%;background:linear-gradient(90deg,var(--green),rgba(0,230,118,0.3));"></div></div></div>
-            <div class="rev-bar"><div class="rev-lbl"><span>خدمات حسابات</span><span style="color:var(--muted);" id="revAcc">0 د.ل</span></div><div class="rev-track"><div class="rev-fill" id="barAcc" style="width:0%;background:linear-gradient(90deg,#a855f7,rgba(168,85,247,0.3));"></div></div></div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-bottom:8px;">Total Revenue</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:900;color:var(--text);" id="dRevenue">0</div>
           </div>
+          <div style="width:42px;height:42px;background:rgba(99,102,241,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
         </div>
-        <div class="dash-panel">
-          <div class="dash-ptitle">⚡ النشاط الأخير</div>
-          <div id="dashActivity"><div style="color:var(--muted);font-size:0.78rem;text-align:center;padding:10px;">لا يوجد نشاط بعد</div></div>
+        <div style="font-size:0.7rem;color:var(--green);margin-top:10px;" id="dTodayRev">↑ اليوم: 0 د.ل</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-bottom:8px;">Total Orders</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:900;color:var(--text);" id="dTotalOrders">0</div>
+          </div>
+          <div style="width:42px;height:42px;background:rgba(16,185,129,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">🛍️</div>
         </div>
+        <div style="font-size:0.7rem;color:var(--green);margin-top:10px;" id="dTodayOrders">↑ اليوم: 0</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-bottom:8px;">Service Orders</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:900;color:var(--text);" id="dPending">0</div>
+          </div>
+          <div style="width:42px;height:42px;background:rgba(245,158,11,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">📱</div>
+        </div>
+        <div style="font-size:0.7rem;color:var(--gold);margin-top:10px;" id="dPendingLbl">0 pending</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-bottom:8px;">Total Customers</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:900;color:var(--text);" id="dClients">0</div>
+          </div>
+          <div style="width:42px;height:42px;background:rgba(59,130,246,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">👥</div>
+        </div>
+        <div style="font-size:0.7rem;color:var(--cyan);margin-top:10px;" id="dNewClients">Active: 0 users</div>
       </div>
     </div>
+
+    <!-- Sales Overview -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <div style="font-size:0.9rem;font-weight:700;">Sales Overview</div>
+          <div style="font-size:0.72rem;color:var(--muted);">Revenue trend</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="setChartPeriod(7)" id="btn7d" style="padding:5px 10px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);border-radius:7px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.7rem;cursor:pointer;">7 أيام</button>
+          <button onclick="setChartPeriod(30)" id="btn30d" style="padding:5px 10px;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.7rem;cursor:pointer;">30 يوم</button>
+        </div>
+      </div>
+      <div style="position:relative;height:120px;">
+        <canvas id="revenueChart" style="width:100%;height:100%;"></canvas>
+        <div id="chartEmpty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.78rem;">لا توجد بيانات بعد</div>
+      </div>
+    </div>
+
+    <!-- Order Status + Top Services -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;">Order Status</div>
+        <div id="orderStatusChart"></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;">Top Services</div>
+        <div id="topServicesChart"></div>
+      </div>
+    </div>
+
+    <!-- الطلبات الأخيرة -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+      <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;">Recent Orders</div>
+      <div id="dashRecentOrders"></div>
+    </div>
+
   </div>
 
   <!-- CLIENTS PANEL -->
@@ -1468,23 +1512,61 @@ window.doLogout = () => {
 };
 
 // ===== USER BAR =====
-function renderLiveStatus(){
+async function renderLiveStatus(){
   const el=document.getElementById('liveStatusList');
   if(!el) return;
-  const active=services.filter(s=>s.active).slice(0,5);
-  if(!active.length){
-    el.innerHTML='<div style="font-size:0.72rem;color:var(--muted);text-align:center;padding:8px;">لا توجد خدمات نشطة</div>';
-    return;
-  }
-  el.innerHTML=active.map(s=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-      <div style="font-size:0.72rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${s.name}</div>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-        <div style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:blink 2s infinite;"></div>
-        <span style="font-size:0.65rem;color:var(--green);">Active</span>
+  try {
+    const snap=await getDocs(query(collection(db,'liveStatus')));
+    const items=snap.docs.map(d=>({...d.data(),fid:d.id})).filter(i=>i.active);
+    if(!items.length){
+      el.innerHTML='<div style="font-size:0.72rem;color:var(--muted);text-align:center;padding:8px;">لا توجد خدمات مضافة</div>';
+      return;
+    }
+    el.innerHTML=items.map(s=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="font-size:0.72rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${s.name}</div>
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:blink 2s infinite;"></div>
+          <span style="font-size:0.65rem;color:var(--green);">Active</span>
+        </div>
+      </div>`).join('');
+  } catch(e){ el.innerHTML=''; }
+}
+
+// ===== إدارة Live Status =====
+async function renderLiveStatusAdmin(){
+  const el=document.getElementById('liveStatusAdminList');
+  if(!el) return;
+  const snap=await getDocs(query(collection(db,'liveStatus')));
+  const items=snap.docs.map(d=>({...d.data(),fid:d.id}));
+  if(!items.length){el.innerHTML='<div style="color:var(--muted);font-size:0.8rem;padding:10px 0;">لا توجد عناصر</div>';return;}
+  el.innerHTML=items.map(i=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div style="flex:1;font-size:0.84rem;font-weight:600;">${i.name}</div>
+      <div style="display:flex;align-items:center;gap:4px;cursor:pointer;" onclick="toggleLiveStatus('${i.fid}',${!i.active})">
+        <div style="width:28px;height:16px;border-radius:8px;background:${i.active?'var(--green)':'var(--border)'};position:relative;transition:all 0.2s;">
+          <div style="width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:2px;${i.active?'right:2px':'left:2px'};transition:all 0.2s;"></div>
+        </div>
+        <span style="font-size:0.72rem;color:${i.active?'var(--green)':'var(--muted)'};">${i.active?'نشط':'مخفي'}</span>
       </div>
+      <button onclick="delLiveStatus('${i.fid}')" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);border-radius:6px;color:var(--red);padding:4px 8px;font-size:0.72rem;cursor:pointer;">🗑</button>
     </div>`).join('');
 }
+window.addLiveStatus=async()=>{
+  const name=document.getElementById('liveStatusName').value.trim();
+  if(!name){alert('أدخل اسم الخدمة');return;}
+  await addDoc(collection(db,'liveStatus'),{name,active:true,createdAt:Date.now()});
+  document.getElementById('liveStatusName').value='';
+  renderLiveStatusAdmin(); renderLiveStatus();
+};
+window.toggleLiveStatus=async(fid,active)=>{
+  await updateDoc(doc(db,'liveStatus',fid),{active});
+  renderLiveStatusAdmin(); renderLiveStatus();
+};
+window.delLiveStatus=async(fid)=>{
+  await deleteDoc(doc(db,'liveStatus',fid));
+  renderLiveStatusAdmin(); renderLiveStatus();
+};
 
 function updateUserBar(){
   if(!currentUser) return;
@@ -1530,7 +1612,7 @@ window.switchTab = t => {
   if(t==='dashboard'){setTimeout(()=>updateDashboard(),100);}
   if(t==='clients'){renderClientsTab();}
   if(t==='files'){renderFiles();}
-  if(t==='admin'){loadTgConfig();loadUsdtRate();loadSiteSettings();renderAdmin();renderPending();}
+  if(t==='admin'){loadTgConfig();loadUsdtRate();loadSiteSettings();renderAdmin();renderPending();renderLiveStatusAdmin();}
   if(t==='charges'){renderAllChargesTab();}
   if(t==='debt'){renderDebts();}
   if(t==='orders'){renderAllOrdersTab();}
@@ -2964,104 +3046,147 @@ async function sendTelegram(text){
 // ===== ADMIN CLIENTS =====
 // ===== DASHBOARD =====
 function updateDashboard(){
-  // DEBUG
-  const dbg = document.getElementById('debugBox');
-  const dbgC = document.getElementById('debugContent');
-  if(dbg && dbgC){
-    dbg.style.display='block';
-    dbgC.innerHTML=`
-      <div>📦 عدد الطلبات في orders[]: <b style="color:var(--cyan)">${orders.length}</b></div>
-      <div>👥 عدد الزبائن في clients[]: <b style="color:var(--cyan)">${clients.length}</b></div>
-      <div>👤 currentUser.isAdmin: <b style="color:var(--cyan)">${currentUser?.isAdmin}</b></div>
-      <div>🔑 adminUnlocked: <b style="color:var(--cyan)">${adminUnlocked}</b></div>
-      ${orders.length>0?`<div style="margin-top:6px;">📋 أول طلب: <b style="color:var(--gold)">${JSON.stringify(orders[0]).substring(0,200)}</b></div>`:'<div style="color:var(--red);">❌ لا توجد طلبات في المصفوفة!</div>'}
-    `;
-  }
   const today = new Date(); today.setHours(0,0,0,0);
   const todayTs = today.getTime();
 
-  const completedOrders = orders.filter(o=>o.status==='completed');
-  const todayOrders = orders.filter(o=>o.createdAt >= todayTs);
-  const todayCompleted = todayOrders.filter(o=>o.status==='completed');
-  const pendingOrders = orders.filter(o=>o.status==='pending');
+  // حساب الإحصاء
+  const totalRev = orders.filter(o=>o.status==='completed').reduce((a,o)=>a+(o.total||o.price||0),0);
+  const todayRev = orders.filter(o=>o.status==='completed'&&o.createdAt>=todayTs).reduce((a,o)=>a+(o.total||o.price||0),0);
+  const todayOrds = orders.filter(o=>o.createdAt>=todayTs).length;
+  const pending = orders.filter(o=>o.status==='pending'||o.status==='processing').length;
+  const activeClients = clients.filter(c=>c.status==='approved').length;
 
-  // الإيرادات من حقل total أو price
-  const totalRev = completedOrders.reduce((a,o)=>a+(o.total||o.price||0),0);
-  const todayRev = todayCompleted.reduce((a,o)=>a+(o.total||o.price||0),0);
-  const activeClients = clients.filter(c=>c.status==='approved');
-  const newClientsToday = clients.filter(c=>c.createdAt>=todayTs);
+  // تحديث الأرقام
+  const set = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('dRevenue', totalRev.toLocaleString('ar-LY') + ' د.ل');
+  set('dTodayRev', `↑ اليوم: ${todayRev.toLocaleString('ar-LY')} د.ل`);
+  set('dTotalOrders', orders.length);
+  set('dTodayOrders', `↑ اليوم: ${todayOrds}`);
+  set('dPending', pending);
+  set('dPendingLbl', `${pending} pending`);
+  set('dClients', clients.length);
+  set('dNewClients', `Active: ${activeClients} users`);
 
-  document.getElementById('dTotalOrders').textContent = orders.length;
-  document.getElementById('dTodayOrders').textContent = `↑ اليوم: ${todayOrders.length}`;
-  document.getElementById('dRevenue').textContent = totalRev.toLocaleString('ar-LY');
-  document.getElementById('dTodayRev').textContent = `↑ اليوم: ${todayRev.toLocaleString('ar-LY')}`;
-  document.getElementById('dClients').textContent = activeClients.length;
-  document.getElementById('dNewClients').textContent = `جديد: ${newClientsToday.length}`;
-  document.getElementById('dPending').textContent = pendingOrders.length;
+  // رسم الچارت
+  drawRevenueChart(30);
 
-  // الطلبات الأخيرة - كل الطلبات بغض النظر عن الحالة
-  const recent = orders.slice(0,6);
-  const statusMap = {
-    pending:{cls:'cwt',ic:'⏳',label:'انتظار'},
-    processing:{cls:'cc',ic:'🔄',label:'معالجة'},
-    completed:{cls:'con',ic:'✅',label:'مكتمل'},
-    rejected:{cls:'cof',ic:'❌',label:'مرفوض'}
-  };
-  document.getElementById('dashRecentOrders').innerHTML = recent.length ? recent.map(o=>{
-    const s = statusMap[o.status]||statusMap.pending;
-    const ago = Math.floor((Date.now()-o.createdAt)/60000);
-    const agoTxt = ago<1?'الآن':ago<60?`منذ ${ago}د`:`منذ ${Math.floor(ago/60)}س`;
-    // اسم الخدمة من serviceName أو serviceId
-    const svcName = o.serviceName || o.serviceId || '—';
-    const cliName = o.clientName || o.username || o.email || '—';
-    const actBtns = o.status==='pending'?`<div style="display:flex;gap:5px;margin-top:6px;">${o.status!=='processing'?`<button onclick="setOrderStatus('${o.fid}','processing')" style="flex:1;padding:5px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:7px;color:var(--cyan);font-size:0.72rem;cursor:pointer;font-family:'Tajawal',sans-serif;">🔄 معالجة</button>`:''}<button onclick="setOrderStatus('${o.fid}','completed')" style="flex:1;padding:5px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:7px;color:var(--green);font-size:0.72rem;cursor:pointer;font-family:'Tajawal',sans-serif;">✅ موافقة</button><button onclick="setOrderStatus('${o.fid}','rejected')" style="flex:1;padding:5px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);border-radius:7px;color:var(--red);font-size:0.72rem;cursor:pointer;font-family:'Tajawal',sans-serif;">❌ رفض</button></div>`:'';
-    return `<div class="dash-ord">
-      <div class="dash-ord-ic" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.15);">${s.ic}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:0.84rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${svcName}</div>
-        <div style="font-size:0.7rem;color:var(--muted);">👤 ${cliName} · ${agoTxt}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-        <span class="chip ${s.cls}">${s.label}</span>
-        <span style="font-size:0.7rem;color:var(--gold);font-family:'Orbitron',sans-serif;">${(o.total||o.price||0)} د.ل</span>
-      </div>
-    </div>${actBtns}`;
-  }).join('') : '<div style="color:var(--muted);font-size:0.78rem;text-align:center;padding:14px;">لا توجد طلبات</div>';
+  // Order Status
+  const stEl = document.getElementById('orderStatusChart');
+  if(stEl){
+    const counts = {pending:0, processing:0, completed:0, rejected:0};
+    orders.forEach(o=>{ if(counts[o.status]!==undefined) counts[o.status]++; });
+    const total = orders.length || 1;
+    const bars = [
+      {label:'انتظار',count:counts.pending,color:'var(--gold)'},
+      {label:'معالجة',count:counts.processing,color:'var(--cyan)'},
+      {label:'مكتمل',count:counts.completed,color:'var(--green)'},
+      {label:'مرفوض',count:counts.rejected,color:'var(--red)'},
+    ];
+    stEl.innerHTML = bars.map(b=>`
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:3px;">
+          <span style="color:var(--muted);">${b.label}</span>
+          <span style="color:${b.color};font-weight:700;">${b.count}</span>
+        </div>
+        <div style="height:5px;background:var(--card);border-radius:5px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round(b.count/total*100)}%;background:${b.color};border-radius:5px;transition:width 0.6s;"></div>
+        </div>
+      </div>`).join('');
+  }
 
-  // إيرادات الخدمات — من serviceName لأنه ما في serviceCategory
-  const revMap = {FRP:0,Cloud:0,Tools:0,Acc:0};
-  completedOrders.forEach(o=>{
-    const name = (o.serviceName||o.serviceCategory||'').toLowerCase();
-    if(name.includes('frp') || name.includes('فرب')) revMap.FRP+=(o.total||o.price||0);
-    else if(name.includes('icloud') || name.includes('آي كلاود') || name.includes('ايكلاود')) revMap.Cloud+=(o.total||o.price||0);
-    else if(name.includes('إيجار') || name.includes('ايجار') || name.includes('أداة') || name.includes('tool')) revMap.Tools+=(o.total||o.price||0);
-    else revMap.Acc+=(o.total||o.price||0);
-  });
-  const maxRev = Math.max(...Object.values(revMap),1);
-  ['FRP','Cloud','Tools','Acc'].forEach(k=>{
-    const el=document.getElementById('rev'+k); const bar=document.getElementById('bar'+k);
-    if(el) el.textContent=revMap[k].toLocaleString('ar-LY')+' د.ل';
-    if(bar) bar.style.width=Math.round((revMap[k]/maxRev)*100)+'%';
-  });
+  // Top Services
+  const tsEl = document.getElementById('topServicesChart');
+  if(tsEl){
+    const svcCount = {};
+    orders.filter(o=>o.status==='completed').forEach(o=>{
+      svcCount[o.serviceName] = (svcCount[o.serviceName]||0) + 1;
+    });
+    const top = Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const max = top[0]?.[1] || 1;
+    tsEl.innerHTML = top.length ? top.map(([name,cnt])=>`
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:3px;">
+          <span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;">${name}</span>
+          <span style="color:var(--cyan);font-weight:700;">${cnt}</span>
+        </div>
+        <div style="height:5px;background:var(--card);border-radius:5px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round(cnt/max*100)}%;background:linear-gradient(90deg,var(--cyan),var(--cyan2));border-radius:5px;"></div>
+        </div>
+      </div>`).join('') : '<div style="color:var(--muted);font-size:0.75rem;">لا توجد بيانات</div>';
+  }
 
-  // سجل النشاط — كل الطلبات
-  const actColors = {completed:'var(--green)',pending:'var(--gold)',processing:'var(--cyan)',rejected:'var(--red)'};
-  const actIcons = {completed:'✅',pending:'🆕',processing:'🔄',rejected:'❌'};
-  const actItems = orders.slice(0,8).map(o=>{
-    const ago = Math.floor((Date.now()-o.createdAt)/60000);
-    const agoTxt = ago<1?'الآن':ago<60?`منذ ${ago}د`:`منذ ${Math.floor(ago/60)}س`;
-    const col = actColors[o.status]||'var(--cyan)';
-    const ic = actIcons[o.status]||'📋';
-    const cliName = o.clientName || o.username || o.email || '—';
-    const svcName = o.serviceName || o.serviceId || 'خدمة';
-    return `<div class="act-row">
-      <div class="act-dot" style="background:${col};box-shadow:0 0 5px ${col};"></div>
-      <span class="act-time">${agoTxt}</span>
-      <span style="font-size:0.76rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ic} ${svcName} · ${cliName}</span>
-    </div>`;
-  });
-  document.getElementById('dashActivity').innerHTML = actItems.length ? actItems.join('') : '<div style="color:var(--muted);font-size:0.78rem;text-align:center;padding:10px;">لا يوجد نشاط</div>';
+  // Recent Orders
+  const roEl = document.getElementById('dashRecentOrders');
+  if(roEl){
+    const recent = orders.slice(0,5);
+    const stMap={pending:{ic:'⏳',col:'var(--gold)'},processing:{ic:'🔄',col:'var(--cyan)'},completed:{ic:'✅',col:'var(--green)'},rejected:{ic:'❌',col:'var(--red)'}};
+    roEl.innerHTML = recent.length ? recent.map(o=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openOrdDetail('${o.fid}')">
+        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${stMap[o.status]?.ic||'⏳'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.serviceName}</div>
+          <div style="font-size:0.68rem;color:var(--muted);">${o.clientName} · ${new Date(o.createdAt).toLocaleDateString('ar-LY')}</div>
+        </div>
+        <div style="text-align:left;flex-shrink:0;">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--gold);">${o.total||o.price} د.ل</div>
+          <div style="font-size:0.65rem;color:${stMap[o.status]?.col||'var(--muted)'};">${o.status==='completed'?'مكتمل':o.status==='rejected'?'مرفوض':o.status==='processing'?'معالجة':'انتظار'}</div>
+        </div>
+      </div>`).join('') : '<div style="color:var(--muted);font-size:0.78rem;text-align:center;padding:14px;">لا توجد طلبات بعد</div>';
+  }
 }
+
+let chartPeriod = 30;
+window.setChartPeriod = (days) => {
+  chartPeriod = days;
+  ['7d','30d'].forEach(d=>{ const el=document.getElementById('btn'+d); if(el){el.style.background='transparent';el.style.color='var(--muted)';el.style.borderColor='var(--border)';} });
+  const active = document.getElementById('btn'+days+'d');
+  if(active){active.style.background='rgba(0,212,255,0.1)';active.style.color='var(--cyan)';active.style.borderColor='rgba(0,212,255,0.25)';}
+  drawRevenueChart(days);
+};
+
+function drawRevenueChart(days){
+  const canvas = document.getElementById('revenueChart');
+  const emptyEl = document.getElementById('chartEmpty');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = canvas.offsetHeight;
+  canvas.width = W; canvas.height = H;
+
+  // حساب البيانات
+  const now = Date.now();
+  const pts = [];
+  for(let i=days-1;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i); d.setHours(0,0,0,0);
+    const next = new Date(d); next.setDate(next.getDate()+1);
+    const rev = orders.filter(o=>o.status==='completed'&&o.createdAt>=d.getTime()&&o.createdAt<next.getTime()).reduce((a,o)=>a+(o.total||o.price||0),0);
+    pts.push(rev);
+  }
+  const max = Math.max(...pts, 1);
+  const hasData = pts.some(p=>p>0);
+  if(emptyEl) emptyEl.style.display = hasData ? 'none' : 'flex';
+  if(!hasData) return;
+
+  ctx.clearRect(0,0,W,H);
+  const pad = 10;
+  const chartW = W - pad*2;
+  const chartH = H - pad*2;
+
+  // رسم الخط
+  ctx.beginPath();
+  pts.forEach((v,i)=>{
+    const x = pad + (i/(pts.length-1))*chartW;
+    const y = pad + (1 - v/max)*chartH;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = 'var(--cyan)'; ctx.lineWidth = 2; ctx.stroke();
+
+  // تعبئة
+  ctx.lineTo(pad+chartW, pad+chartH); ctx.lineTo(pad, pad+chartH); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(0,212,255,0.2)'); grad.addColorStop(1,'rgba(0,212,255,0)');
+  ctx.fillStyle = grad; ctx.fill();
+}
+
 
 function renderClients(){
   const el=document.getElementById('clientsList');
