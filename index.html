@@ -2176,95 +2176,131 @@ function renderMyOrders(){
   if(!el||!currentUser) return;
   const titleEl=document.getElementById('ordersTitle');
   if(titleEl) titleEl.innerHTML=currentUser.isAdmin?'📋 سجل طلبات الزبائن':'📋 سجل طلباتي';
-  const mine=currentUser.isAdmin?orders.slice(0,50):orders.filter(o=>o.clientFid===currentUser.fid);
+
+  // الأدمن يرى الشكل التفصيلي
+  if(currentUser.isAdmin){
+    const mine=orders.slice(0,50);
+    if(!mine.length){el.innerHTML=`<div style="text-align:center;color:var(--muted);padding:18px;font-size:0.82rem;">لا توجد طلبات بعد</div>`;return;}
+    const stMap={pending:{ic:'⏳',txt:'قيد المراجعة',cls:'pending',col:'var(--gold)'},processing:{ic:'🔄',txt:'قيد المعالجة',cls:'processing',col:'var(--cyan)'},completed:{ic:'✅',txt:'مكتمل',cls:'completed',col:'var(--green)'},rejected:{ic:'❌',txt:'مرفوض',cls:'rejected',col:'var(--red)'}};
+    el.innerHTML=mine.map((o,i)=>{
+      const st=stMap[o.status]||stMap.pending;
+      const date=new Date(o.createdAt);
+      const fullDate=date.toLocaleDateString('ar-LY',{year:'numeric',month:'long',day:'numeric'});
+      const fullTime=date.toLocaleTimeString('ar-LY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      const qty=o.qty||1;
+      const extra=[
+        o.imei?`<div class="ord-detail-row">📱 IMEI: <span>${o.imei}</span></div>`:'',
+        o.sn?`<div class="ord-detail-row">🔢 SN: <span>${o.sn}</span></div>`:'',
+        o.username?`<div class="ord-detail-row">👤 Username: <span>${o.username}</span></div>`:'',
+        o.email?`<div class="ord-detail-row">📧 Email: <span>${o.email}</span></div>`:'',
+        o.phone?`<div class="ord-detail-row">📞 هاتف الخدمة: <span>${o.phone}</span></div>`:'',
+        o.password?`<div class="ord-detail-row">🔑 كلمة السر: <span>${o.password}</span></div>`:'',
+        o.lookscreen?`<div class="ord-detail-row">🔒 Lookscreen: <span>${o.lookscreen}</span></div>`:'',
+        o.anydesk?`<div class="ord-detail-row">🖥️ AnyDesk: <span>${o.anydesk}</span></div>`:'',
+        o.ultraviewer?`<div class="ord-detail-row">👁️ UltraViewer: <span>${o.ultraviewer}</span></div>`:'',
+        o.note?`<div class="ord-detail-row">📝 ملاحظة: <span>${o.note}</span></div>`:''
+      ].filter(Boolean).join('');
+      const actionBtns=o.status!=='completed'&&o.status!=='rejected'?`
+        <div class="ord-act-btns">
+          ${o.status!=='processing'?`<button class="btn-process" onclick="setOrderStatus('${o.fid}','processing')">🔄 قيد المعالجة</button>`:''}
+          <button class="btn-approve" onclick="setOrderStatus('${o.fid}','completed')">✅ موافقة</button>
+          <button class="btn-reject" onclick="setOrderStatus('${o.fid}','rejected')">❌ رفض</button>
+        </div>`:`<div style="margin-top:8px;padding:8px 12px;background:${o.status==='completed'?'rgba(0,230,118,0.08)':'rgba(255,68,68,0.08)'};border:1px solid ${o.status==='completed'?'rgba(0,230,118,0.2)':'rgba(255,68,68,0.2)'};border-radius:8px;font-size:0.8rem;">الحالة النهائية: <strong style="color:${st.col}">${st.ic} ${st.txt}</strong></div>`;
+      return `<div class="ord-full ${st.cls}" style="animation-delay:${i*0.02}s">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+            <div style="width:32px;height:32px;border-radius:7px;background:${o.status==='completed'?'#00c853':o.status==='rejected'?'var(--red)':o.status==='processing'?'rgba(0,212,255,0.7)':'rgba(245,200,66,0.7)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${o.status==='completed'?`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`<span style="font-size:14px;">${st.ic}</span>`}
+            </div>
+            <div style="min-width:0;">
+              <div style="font-size:0.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.serviceName}${qty>1?` <span style="font-family:'Orbitron',sans-serif;font-size:0.68rem;background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25);border-radius:20px;padding:1px 6px;">×${qty}</span>`:''}</div>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">📅 ${fullDate} · 🕐 ${fullTime}</div>
+            </div>
+          </div>
+          <div style="text-align:left;flex-shrink:0;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:700;color:var(--gold);">${o.total||o.price}<small style="font-family:'Tajawal',sans-serif;font-size:0.62rem;color:var(--muted);"> د.ل</small></div>
+          </div>
+        </div>
+        <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.1);border-radius:9px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:0.72rem;color:var(--cyan);font-weight:700;margin-bottom:7px;">👤 بيانات الزبون</div>
+          <div class="ord-detail-row">الاسم: <span>${o.clientName||'—'}</span></div>
+          <div class="ord-detail-row">📧 <span>${o.clientEmail||'—'}</span></div>
+          ${o.clientPhone?`<div class="ord-detail-row">📞 <span>${o.clientPhone}</span></div>`:''}
+        </div>
+        ${extra?`<div style="background:rgba(245,200,66,0.04);border:1px solid rgba(245,200,66,0.1);border-radius:9px;padding:10px;margin-bottom:10px;">
+          <div style="font-size:0.72rem;color:var(--gold);font-weight:700;margin-bottom:7px;">📋 بيانات الطلب</div>${extra}</div>`:''}
+        ${actionBtns}
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  // الزبون يرى الجدول البسيط
+  const mine=orders.filter(o=>o.clientFid===currentUser.fid);
   if(!mine.length){el.innerHTML=`<div style="text-align:center;color:var(--muted);padding:18px;font-size:0.82rem;">لا توجد طلبات بعد</div>`;return;}
 
-  const stMap={
-    pending:   {ic:'⏳',txt:'قيد المراجعة', cls:'pending',   col:'var(--gold)'},
-    processing:{ic:'🔄',txt:'قيد المعالجة', cls:'processing', col:'var(--cyan)'},
-    completed: {ic:'✅',txt:'مكتمل',         cls:'completed',  col:'var(--green)'},
-    rejected:  {ic:'❌',txt:'مرفوض',         cls:'rejected',   col:'var(--red)'}
-  };
+  const rows = mine.map(o=>{
+    const date = new Date(o.createdAt).toISOString().slice(0,10);
+    const isCompleted = o.status==='completed';
+    const isRejected  = o.status==='rejected';
+    const isProc      = o.status==='processing';
 
-  el.innerHTML = mine.map((o,i)=>{
-    const st = stMap[o.status]||stMap.pending;
-    const date = new Date(o.createdAt);
-    const fullDate = date.toLocaleDateString('ar-LY',{year:'numeric',month:'long',day:'numeric'});
-    const fullTime = date.toLocaleTimeString('ar-LY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    const qty = o.qty||1;
+    const statusIcon = isCompleted
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#00c853;border-radius:5px;margin-right:6px;flex-shrink:0;">
+           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+         </span>`
+      : isRejected
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--red);border-radius:5px;margin-right:6px;flex-shrink:0;color:#fff;font-size:12px;font-weight:700;">✕</span>`
+      : isProc
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(0,212,255,0.8);border-radius:5px;margin-right:6px;flex-shrink:0;font-size:11px;">🔄</span>`
+      : `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(245,200,66,0.85);border-radius:5px;margin-right:6px;flex-shrink:0;font-size:11px;">⏳</span>`;
 
-    // بيانات الطلب (الحقول المدخلة)
-    const extraFields = [
-      o.imei       ? `<div class="ord-detail-row">📱 IMEI: <span>${o.imei}</span></div>` : '',
-      o.sn         ? `<div class="ord-detail-row">🔢 SN: <span>${o.sn}</span></div>` : '',
-      o.username   ? `<div class="ord-detail-row">👤 Username: <span>${o.username}</span></div>` : '',
-      o.email      ? `<div class="ord-detail-row">📧 Email: <span>${o.email}</span></div>` : '',
-      o.phone      ? `<div class="ord-detail-row">📞 هاتف الخدمة: <span>${o.phone}</span></div>` : '',
-      o.password   ? `<div class="ord-detail-row">🔑 كلمة السر: <span>${o.password}</span></div>` : '',
-      o.lookscreen ? `<div class="ord-detail-row">🔒 Lookscreen: <span>${o.lookscreen}</span></div>` : '',
-      o.anydesk    ? `<div class="ord-detail-row">🖥️ AnyDesk: <span>${o.anydesk}</span></div>` : '',
-      o.ultraviewer? `<div class="ord-detail-row">👁️ UltraViewer: <span>${o.ultraviewer}</span></div>` : '',
-      o.note       ? `<div class="ord-detail-row">📝 ملاحظة: <span>${o.note}</span></div>` : ''
-    ].filter(Boolean).join('');
-
-    // نتيجة الطلب
-    const resultBox = o.status==='completed' && o.result ? `
-      <div style="background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);border-radius:9px;padding:11px;margin-top:10px;">
-        <div style="font-size:0.72rem;color:var(--green);font-weight:700;margin-bottom:6px;">📦 النتيجة</div>
-        <pre style="font-family:monospace;font-size:0.82rem;color:var(--text);white-space:pre-wrap;word-break:break-all;margin:0;">${o.result}</pre>
-        <button onclick="navigator.clipboard.writeText('${o.result.replace(/'/g,"\\'")}').then(()=>{this.textContent='✅ تم النسخ!';setTimeout(()=>this.textContent='📋 نسخ',2000)})"
-          style="margin-top:8px;padding:5px 12px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);border-radius:7px;color:var(--green);font-family:'Tajawal',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;">📋 نسخ</button>
-      </div>` : '';
-
-    // الحالة النهائية أو قيد المعالجة
-    const statusBar = `
-      <div style="margin-top:10px;padding:9px 13px;background:${o.status==='completed'?'rgba(0,230,118,0.08)':o.status==='rejected'?'rgba(255,68,68,0.08)':o.status==='processing'?'rgba(0,212,255,0.08)':'rgba(245,200,66,0.08)'};border:1px solid ${o.status==='completed'?'rgba(0,230,118,0.2)':o.status==='rejected'?'rgba(255,68,68,0.2)':o.status==='processing'?'rgba(0,212,255,0.2)':'rgba(245,200,66,0.2)'};border-radius:9px;font-size:0.82rem;">
-        الحالة النهائية: <strong style="color:${st.col}">${st.ic} ${st.txt}</strong>
-      </div>`;
+    // نتيجة تظهر كصف إضافي تحت الطلب
+    const resultRow = isCompleted && o.result ? `
+      <tr>
+        <td colspan="4" style="padding:0 12px 12px 12px;">
+          <div style="background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);border-radius:9px;padding:10px;">
+            <div style="font-size:0.7rem;color:var(--green);font-weight:700;margin-bottom:5px;">📦 النتيجة</div>
+            <pre style="font-family:monospace;font-size:0.8rem;color:var(--text);white-space:pre-wrap;word-break:break-all;margin:0;">${o.result}</pre>
+            <button onclick="navigator.clipboard.writeText('${o.result.replace(/'/g,"\\'")}').then(()=>{this.textContent='✅ تم النسخ!';setTimeout(()=>this.textContent='📋 نسخ',2000)})"
+              style="margin-top:7px;padding:4px 11px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);border-radius:6px;color:var(--green);font-family:'Tajawal',sans-serif;font-size:0.74rem;font-weight:700;cursor:pointer;">📋 نسخ</button>
+          </div>
+        </td>
+      </tr>` : '';
 
     return `
-    <div class="ord-full ${st.cls}" style="animation-delay:${i*0.03}s;margin-bottom:14px;">
-
-      <!-- رأس البطاقة: اسم الخدمة + السعر + التاريخ -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px;padding-bottom:11px;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0;">
-          <!-- أيقونة الحالة مربع أخضر/أحمر -->
-          <div style="width:32px;height:32px;border-radius:7px;background:${o.status==='completed'?'#00c853':o.status==='rejected'?'var(--red)':o.status==='processing'?'rgba(0,212,255,0.7)':'rgba(245,200,66,0.7)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            ${o.status==='completed'
-              ?`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-              :`<span style="font-size:14px;">${st.ic}</span>`}
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:11px 10px;vertical-align:middle;">
+          <input type="checkbox" style="width:15px;height:15px;accent-color:var(--cyan);cursor:pointer;">
+        </td>
+        <td style="padding:11px 6px;vertical-align:middle;font-family:'Orbitron',sans-serif;font-size:0.78rem;font-weight:700;color:var(--cyan);white-space:nowrap;">${o.orderNum||o.fid?.slice(-4)||'—'}</td>
+        <td style="padding:11px 8px;vertical-align:middle;font-size:0.78rem;color:var(--text2);white-space:nowrap;">${date}</td>
+        <td style="padding:11px 12px 11px 6px;vertical-align:middle;">
+          <div style="display:flex;align-items:center;">
+            ${statusIcon}
+            <span style="font-size:0.83rem;font-weight:600;color:var(--text);">${o.serviceName}${o.qty&&o.qty>1?` <span style="font-family:'Orbitron',sans-serif;font-size:0.66rem;background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:1px 6px;margin-right:3px;">×${o.qty}</span>`:''}</span>
           </div>
-          <div style="min-width:0;">
-            <div style="font-size:0.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.serviceName}${qty>1?` <span style="font-family:'Orbitron',sans-serif;font-size:0.68rem;background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25);border-radius:20px;padding:1px 6px;">×${qty}</span>`:''}</div>
-            <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">📅 ${fullDate} &nbsp;🕐 ${fullTime}</div>
-          </div>
-        </div>
-        <div style="text-align:left;flex-shrink:0;">
-          <div style="font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:700;color:var(--gold);">${o.total||o.price}<small style="font-family:'Tajawal',sans-serif;font-size:0.62rem;color:var(--muted);"> د.ل</small></div>
-          ${qty>1?`<div style="font-size:0.68rem;color:var(--muted);text-align:center;">الواحد: ${o.unitPrice||o.price} د.ل</div>`:''}
-        </div>
-      </div>
-
-      <!-- بيانات الزبون -->
-      <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.12);border-radius:9px;padding:10px 13px;margin-bottom:9px;">
-        <div style="font-size:0.72rem;color:var(--cyan);font-weight:700;margin-bottom:7px;">👤 بيانات الزبون</div>
-        <div class="ord-detail-row">الاسم: <span>${o.clientName||'—'}</span></div>
-        <div class="ord-detail-row">📧 <span>${o.clientEmail||'—'}</span></div>
-        ${o.clientPhone?`<div class="ord-detail-row">📞 <span>${o.clientPhone}</span></div>`:''}
-      </div>
-
-      <!-- بيانات الطلب -->
-      ${extraFields?`
-      <div style="background:rgba(245,200,66,0.04);border:1px solid rgba(245,200,66,0.12);border-radius:9px;padding:10px 13px;margin-bottom:9px;">
-        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;margin-bottom:7px;">📋 بيانات الطلب</div>
-        ${extraFields}
-      </div>`:''}
-
-      <!-- الحالة -->
-      ${statusBar}
-      ${resultBox}
-    </div>`;
+        </td>
+      </tr>${resultRow}`;
   }).join('');
+
+  el.innerHTML = `
+    <div style="overflow-x:auto;border-radius:13px;border:1px solid var(--border);">
+      <table style="width:100%;border-collapse:collapse;background:var(--surface);">
+        <thead>
+          <tr style="background:var(--card);border-bottom:2px solid var(--border);">
+            <th style="padding:11px 10px;text-align:right;width:36px;">
+              <input type="checkbox" style="width:15px;height:15px;accent-color:var(--cyan);cursor:pointer;"
+                onclick="this.closest('table').querySelectorAll('tbody input[type=checkbox]').forEach(c=>c.checked=this.checked)">
+            </th>
+            <th style="padding:11px 6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--text2);white-space:nowrap;">ID</th>
+            <th style="padding:11px 8px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--text2);white-space:nowrap;">Date</th>
+            <th style="padding:11px 12px 11px 6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--text2);">Service</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
 function renderAllOrdersTab(){
