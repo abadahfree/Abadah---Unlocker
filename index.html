@@ -1457,8 +1457,8 @@ function renderServices(){
     // ===== قسم تفعيل أدوات: عرض مجلدات الأدوات =====
     if(cat.key==='تفعيل أدوات'){
       const folders=toolFolders.filter(f=>!q||f.name.toLowerCase().includes(q));
-      // الخدمات العادية في نفس القسم (إن وُجدت)
-      const normalSvcs=services.filter(s=>s.active&&s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
+      // الخدمات العادية في نفس القسم (إن وُجدت) — نعرض الكل بما فيها المتوقفة
+      const normalSvcs=services.filter(s=>s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
       if(!folders.length&&!normalSvcs.length) return;
       total+=folders.length+normalSvcs.length;
       html+=`<div class="cat-hdr" style="grid-column:1/-1"><span>${cat.icon}</span>${cat.key}</div>`;
@@ -1504,10 +1504,10 @@ function renderServices(){
         });
         html+=`</div>`;
       }
-      // الخدمات العادية
+      // الخدمات العادية — تظهر حتى لو متوقفة
       if(normalSvcs.length){
         html+=normalSvcs.map((s,i)=>`
-        <div class="svc-card" style="animation-delay:${i*0.05}s">
+        <div class="svc-card" style="animation-delay:${i*0.05}s;${!s.active?'opacity:0.55;filter:grayscale(0.4);':''}">
           ${s.image?`<img class="svc-img" src="${s.image}" alt="${s.name}">`:`<div class="svc-ph">${s.icon}</div>`}
           <span class="svc-status-badge ${s.active?'online':'offline'}"><span class="svc-status-dot"></span>${s.active?'أون لاين':'أوف لاين'}</span>
           ${s.tag==='new'?'<span class="svc-tag tag-new">✨ جديد</span>':s.tag==='hot'?'<span class="svc-tag tag-hot">🔥 رائج</span>':s.tag==='sale'?'<span class="svc-tag tag-sale">💥 عرض</span>':''}
@@ -1516,18 +1516,19 @@ function renderServices(){
           <div class="svc-desc">${s.desc||'خدمة احترافية سريعة وموثوقة'}</div>
           <div class="svc-row">
             <div class="svc-price">${currentUser?(()=>{const me=clients.find(c=>c.fid===currentUser?.fid);const cur=me?.currency||'LYD';if(cur==='USDT'){const p=(s.price/usdtRate);return p.toFixed(2)+' <span>USDT</span>';}return s.price.toLocaleString('ar-LY')+' <span>د.ل</span>';})():'<span style="font-size:0.75rem;color:var(--muted);">🔒 سجّل للعرض</span>'}</div>
+            ${!s.active?`<span style="padding:7px 14px;background:rgba(255,68,68,0.12);border:1px solid rgba(255,68,68,0.3);border-radius:9px;color:var(--red);font-size:0.78rem;font-weight:700;">متوقفة مؤقتاً</span>`:''}
           </div>
         </div>`).join('');
       }
       return;
     }
-    // ===== باقي الأقسام عادية =====
-    const list=services.filter(s=>s.active&&s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
+    // ===== باقي الأقسام عادية — تعرض الكل بما فيها المتوقفة =====
+    const list=services.filter(s=>s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
     if(!list.length) return;
     total+=list.length;
     html+=`<div class="cat-hdr" style="grid-column:1/-1"><span>${cat.icon}</span>${cat.key}</div>`;
     html+=list.map((s,i)=>`
-      <div class="svc-card" style="animation-delay:${i*0.05}s">
+      <div class="svc-card" style="animation-delay:${i*0.05}s;${!s.active?'opacity:0.55;filter:grayscale(0.4);':''}">
         ${s.image?`<img class="svc-img" src="${s.image}" alt="${s.name}">`:`<div class="svc-ph">${s.icon}</div>`}
         <span class="svc-status-badge ${s.active?'online':'offline'}"><span class="svc-status-dot"></span>${s.active?'أون لاين':'أوف لاين'}</span>
         ${s.tag==='new'?'<span class="svc-tag tag-new">✨ جديد</span>':s.tag==='hot'?'<span class="svc-tag tag-hot">🔥 رائج</span>':s.tag==='sale'?'<span class="svc-tag tag-sale">💥 عرض</span>':''}
@@ -1536,7 +1537,9 @@ function renderServices(){
         <div class="svc-desc">${s.desc||'خدمة احترافية سريعة وموثوقة'}</div>
         <div class="svc-row">
           <div class="svc-price">${currentUser?(()=>{const me=clients.find(c=>c.fid===currentUser?.fid);const cur=me?.currency||'LYD';if(cur==='USDT'){const p=(s.price/usdtRate);return p.toFixed(2)+' <span>USDT</span>';}return s.price.toLocaleString('ar-LY')+' <span>د.ل</span>';})():'<span style="font-size:0.75rem;color:var(--muted);">🔒 سجّل للعرض</span>'}</div>
-          <button class="btn-order" onclick="openOrder('${s.fid}')">اطلب الخدمة</button>
+          ${s.active
+            ?`<button class="btn-order" onclick="openOrder('${s.fid}')">اطلب الخدمة</button>`
+            :`<span style="padding:7px 14px;background:rgba(255,68,68,0.12);border:1px solid rgba(255,68,68,0.3);border-radius:9px;color:var(--red);font-size:0.78rem;font-weight:700;">متوقفة مؤقتاً</span>`}
         </div>
       </div>`).join('');
   });
@@ -2171,33 +2174,77 @@ function renderMyTransactions(){
 function renderMyOrders(){
   const el=document.getElementById('myOrders');
   if(!el||!currentUser) return;
-  // تغيير العنوان حسب نوع المستخدم
   const titleEl=document.getElementById('ordersTitle');
   if(titleEl) titleEl.innerHTML=currentUser.isAdmin?'📋 سجل طلبات الزبائن':'📋 سجل طلباتي';
   const mine=currentUser.isAdmin?orders.slice(0,50):orders.filter(o=>o.clientFid===currentUser.fid);
   if(!mine.length){el.innerHTML=`<div style="text-align:center;color:var(--muted);padding:18px;font-size:0.82rem;">لا توجد طلبات بعد</div>`;return;}
-  const stMap={pending:{ic:'⏳',cls:'cwt',txt:'قيد المراجعة'},processing:{ic:'🔄',cls:'',txt:'قيد المعالجة'},completed:{ic:'✅',cls:'con',txt:'مكتمل'},rejected:{ic:'❌',cls:'cof',txt:'مرفوض'}};
-  el.innerHTML=mine.map(o=>{
-    const st=stMap[o.status]||stMap.pending;
-    const col=o.status==='processing'?'var(--cyan)':o.status==='completed'?'var(--green)':o.status==='rejected'?'var(--red)':'var(--gold)';
-    const resultBox = o.status==='completed' && o.result ? `
-      <div style="margin-top:10px;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);border-radius:10px;padding:11px;">
-        <div style="font-size:0.72rem;color:var(--green);font-weight:700;margin-bottom:6px;">📦 النتيجة</div>
-        <pre style="font-family:monospace;font-size:0.82rem;color:var(--text);white-space:pre-wrap;word-break:break-all;margin:0;">${o.result}</pre>
-        <button onclick="navigator.clipboard.writeText('${o.result.replace(/'/g,"\\'")}').then(()=>{this.textContent='✅ تم النسخ!';setTimeout(()=>this.textContent='📋 نسخ',2000)})" style="margin-top:8px;padding:5px 12px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);border-radius:7px;color:var(--green);font-family:'Tajawal',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;">📋 نسخ</button>
-      </div>` : o.status==='completed' ? `<div style="margin-top:8px;font-size:0.76rem;color:var(--muted);">✅ تم إكمال الطلب</div>` : '';
-    return `<div style="background:var(--surface);border:1px solid ${o.status==='completed'?'rgba(0,230,118,0.2)':o.status==='rejected'?'rgba(255,68,68,0.15)':'var(--border)'};border-radius:13px;padding:14px;margin-bottom:10px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:34px;height:34px;border-radius:8px;background:rgba(0,0,0,0.2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${st.ic}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.serviceName}${o.qty&&o.qty>1?` <span style="font-family:'Orbitron',sans-serif;font-size:0.72rem;background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25);border-radius:20px;padding:1px 7px;margin-right:4px;">× ${o.qty}</span>`:''}</div>
-          <div style="font-size:0.72rem;color:var(--muted);">${new Date(o.createdAt).toLocaleDateString('ar-LY')} · <span style="color:${col};font-weight:700;">${st.txt}</span></div>
-        </div>
-        <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;color:var(--red);font-weight:700;flex-shrink:0;">-${o.price} د.ل</div>
-      </div>
-      ${resultBox}
-    </div>`;
+
+  // Build table
+  let rows = mine.map(o=>{
+    const date = new Date(o.createdAt).toISOString().slice(0,10);
+    const isCompleted = o.status==='completed';
+    const isRejected  = o.status==='rejected';
+    const isPending   = o.status==='pending';
+    const isProc      = o.status==='processing';
+
+    // status icon shown after service name
+    const statusIcon = isCompleted
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#00c853;border-radius:4px;margin-right:5px;flex-shrink:0;">
+           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+         </span>`
+      : isRejected
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:var(--red);border-radius:4px;margin-right:5px;flex-shrink:0;font-size:11px;color:#fff;font-weight:700;">✕</span>`
+      : isProc
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:rgba(0,212,255,0.7);border-radius:4px;margin-right:5px;flex-shrink:0;font-size:10px;">🔄</span>`
+      : `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:rgba(245,200,66,0.8);border-radius:4px;margin-right:5px;flex-shrink:0;font-size:10px;">⏳</span>`;
+
+    const rowBg = isCompleted?'transparent':isRejected?'rgba(255,68,68,0.04)':isPending?'rgba(245,200,66,0.03)':'transparent';
+
+    // result row (if completed with result)
+    const resultRow = isCompleted && o.result ? `
+      <tr>
+        <td colspan="4" style="padding:0 10px 10px 10px;">
+          <div style="background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);border-radius:9px;padding:10px;">
+            <div style="font-size:0.7rem;color:var(--green);font-weight:700;margin-bottom:5px;">📦 النتيجة</div>
+            <pre style="font-family:monospace;font-size:0.8rem;color:var(--text);white-space:pre-wrap;word-break:break-all;margin:0;">${o.result}</pre>
+            <button onclick="navigator.clipboard.writeText('${o.result.replace(/'/g,"\\'")}').then(()=>{this.textContent='✅ تم النسخ!';setTimeout(()=>this.textContent='📋 نسخ',2000)})"
+              style="margin-top:7px;padding:4px 11px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);border-radius:6px;color:var(--green);font-family:'Tajawal',sans-serif;font-size:0.74rem;font-weight:700;cursor:pointer;">📋 نسخ</button>
+          </div>
+        </td>
+      </tr>` : '';
+
+    return `
+      <tr style="background:${rowBg};border-bottom:1px solid var(--border);">
+        <td style="padding:11px 10px;vertical-align:middle;">
+          <input type="checkbox" style="width:15px;height:15px;accent-color:var(--cyan);cursor:pointer;">
+        </td>
+        <td style="padding:11px 6px;vertical-align:middle;font-family:'Orbitron',sans-serif;font-size:0.8rem;font-weight:700;color:var(--cyan);white-space:nowrap;">${o.orderNum||o.fid?.slice(-4)||'—'}</td>
+        <td style="padding:11px 6px;vertical-align:middle;font-size:0.78rem;color:var(--text2);white-space:nowrap;">${date}</td>
+        <td style="padding:11px 10px 11px 6px;vertical-align:middle;">
+          <div style="display:flex;align-items:center;gap:0;">
+            ${statusIcon}
+            <span style="font-size:0.82rem;font-weight:600;color:var(--text);">${o.serviceName}${o.qty&&o.qty>1?` <span style="font-family:'Orbitron',sans-serif;font-size:0.68rem;background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:1px 6px;margin-right:3px;">×${o.qty}</span>`:''}</span>
+          </div>
+        </td>
+      </tr>${resultRow}`;
   }).join('');
+
+  el.innerHTML = `
+    <div style="overflow-x:auto;border-radius:13px;border:1px solid var(--border);">
+      <table style="width:100%;border-collapse:collapse;background:var(--surface);">
+        <thead>
+          <tr style="background:var(--card);border-bottom:2px solid var(--border);">
+            <th style="padding:11px 10px;text-align:right;width:36px;">
+              <input type="checkbox" style="width:15px;height:15px;accent-color:var(--cyan);cursor:pointer;" onclick="this.closest('table').querySelectorAll('tbody input[type=checkbox]').forEach(c=>c.checked=this.checked)">
+            </th>
+            <th style="padding:11px 6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--text2);white-space:nowrap;">ID</th>
+            <th style="padding:11px 6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--text2);white-space:nowrap;">Date</th>
+            <th style="padding:11px 10px 11px 6px;text-align:right;font-size:0.78rem;font-weight:700;color:var(--text2);">Service</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
 function renderAllOrdersTab(){
