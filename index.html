@@ -1708,10 +1708,12 @@ function renderServices(){
     if(cat.key==='تفعيل أدوات'){
       const folders=toolFolders.filter(f=>!q||f.name.toLowerCase().includes(q));
       // الخدمات العادية في نفس القسم (إن وُجدت) — نعرض الكل بما فيها المتوقفة
-      // جمع IDs الخدمات داخل المجلدات لتجنب تكرارها
-      const folderSvcIds=new Set();
-      toolFolders.forEach(f=>(f.plans||[]).forEach(p=>{ if(p.svcId) folderSvcIds.add(p.svcId); }));
-      const normalSvcs=services.filter(s=>s.category===cat.key&&!folderSvcIds.has(s.fid)&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
+      // في قسم "تفعيل أدوات" نعرض المجلدات فقط + الخدمات التي اسمها يطابق البحث ولم تكن في أي مجلد
+      // نجمع أسماء الخدمات الموجودة في المجلدات
+      const folderPlanNames=new Set();
+      toolFolders.forEach(f=>(f.plans||[]).forEach(p=>{ if(p.duration||p.desc) folderPlanNames.add((f.name||'').toLowerCase()); }));
+      // نخفي الخدمات العادية إذا كان هناك مجلدات (لأن المجلدات تعرضها)
+      const normalSvcs=toolFolders.length?[]:services.filter(s=>s.active&&s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
       if(!folders.length&&!normalSvcs.length) return;
       total+=folders.length+normalSvcs.length;
       html+=`<div class="cat-hdr" style="grid-column:1/-1"><span>${cat.icon}</span>${cat.key}</div>`;
@@ -1775,8 +1777,8 @@ function renderServices(){
       }
       return;
     }
-    // ===== باقي الأقسام عادية — تعرض الكل بما فيها المتوقفة =====
-    const list=services.filter(s=>s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
+    // ===== باقي الأقسام عادية — تعرض النشطة فقط =====
+    const list=services.filter(s=>s.active&&s.category===cat.key&&(s.name.toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q)));
     if(!list.length) return;
     total+=list.length;
     html+=`<div class="cat-hdr" style="grid-column:1/-1"><span>${cat.icon}</span>${cat.key}</div>`;
