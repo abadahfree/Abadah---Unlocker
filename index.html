@@ -458,7 +458,7 @@ textarea{resize:vertical;min-height:60px;}
       <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')">👤 خدمات حسابات</button>
     </div>
 
-    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();"></div>
+    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="if(document.getElementById('panel-services')&&!document.getElementById('panel-services').classList.contains('active')){switchTab('services');}activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();"></div>
 
     <!-- الخدمات - عمود واحد عريض -->
     <div class="grid" id="servicesGrid"></div>
@@ -1715,7 +1715,12 @@ function renderServices(){
   fc.forEach(cat=>{
     // ===== قسم تفعيل أدوات: عرض مجلدات الأدوات =====
     if(cat.key==='تفعيل أدوات'){
-      const folders=toolFolders.filter(f=>!q||f.name.toLowerCase().includes(q));
+      // عند البحث نفلتر المجلدات والخطط بداخلها
+      const folders=toolFolders.filter(f=>{
+        if(!q) return true;
+        if(f.name.toLowerCase().includes(q)) return true;
+        return (f.plans||[]).some(p=>(p.duration||'').toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q));
+      });
       // الخدمات العادية في نفس القسم (إن وُجدت) — نعرض الكل بما فيها المتوقفة
       // في قسم "تفعيل أدوات" نعرض المجلدات فقط + الخدمات التي اسمها يطابق البحث ولم تكن في أي مجلد
       // نجمع أسماء الخدمات الموجودة في المجلدات
