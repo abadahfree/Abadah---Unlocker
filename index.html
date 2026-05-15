@@ -55,8 +55,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .cat-scroll::-webkit-scrollbar{display:none;}
 .cat-btn{flex-shrink:0;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:30px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
 .cat-btn.active{background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,153,204,0.1));border-color:var(--cyan);color:var(--cyan);}
-.cat-bar{position:sticky;top:56px;z-index:800;background:rgba(8,11,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 16px;margin:0 -16px;display:none;}
-.cat-bar.visible{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.cat-bar{display:none;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 0;margin-bottom:10px;flex-wrap:nowrap;}
+.cat-bar.visible{display:flex;}
 .cat-bar::-webkit-scrollbar{display:none;}
 .cat-hdr{grid-column:1/-1;display:flex;align-items:center;gap:9px;padding:9px 0 3px;font-size:0.95rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border);margin-bottom:3px;}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:13px;}
@@ -458,7 +458,7 @@ textarea{resize:vertical;min-height:60px;}
       <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')">👤 خدمات حسابات</button>
     </div>
 
-    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="if(document.getElementById('panel-services')&&!document.getElementById('panel-services').classList.contains('active')){switchTab('services');}activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();"></div>
+    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();document.getElementById('servicesGrid')?.scrollIntoView&&void 0;"></div>
 
     <!-- الخدمات - عمود واحد عريض -->
     <div class="grid" id="servicesGrid"></div>
@@ -1426,24 +1426,46 @@ function renderAdsSlider(){
   // تحريك تلقائي
   clearInterval(window._adsInterval);
   let cur=0;
+
   window.goToAd=(i)=>{
-    cur=i;
-    const trackEl=document.getElementById('adsTrack');
-    if(trackEl){
-      const totalWidth=trackEl.scrollWidth;
-      const perSlide=totalWidth/ads.length;
-      trackEl.scrollLeft=perSlide*i;
+    cur=((i%ads.length)+ads.length)%ads.length;
+    // استخدام index مباشر بدل scrollWidth
+    const slides=track.querySelectorAll('.ad-slide');
+    if(slides[cur]){
+      slides[cur].scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'});
     }
-    ads.forEach((_,j)=>{const d=document.getElementById('dot-'+j);if(d)d.style.background=j===i?'var(--cyan)':'var(--border)';});
+    ads.forEach((_,j)=>{
+      const d=document.getElementById('dot-'+j);
+      if(d) d.style.background=j===cur?'var(--cyan)':'var(--border)';
+    });
   };
-  // بدء التحريك التلقائي بعد اكتمال التحميل
-  setTimeout(()=>{
+
+  // منع scrollIntoView من رفع الصفحة
+  const origScroll=window.scrollY;
+  const fixScroll=()=>{ if(window.scrollY!==origScroll) window.scrollTo(0,origScroll); };
+
+  // بدء التحريك بعد تحميل الصور
+  const startSlider=()=>{
     clearInterval(window._adsInterval);
     window._adsInterval=setInterval(()=>{
       cur=(cur+1)%ads.length;
+      const savedY=window.scrollY;
       window.goToAd(cur);
-    },2500);
-  },2000);
+      requestAnimationFrame(()=>window.scrollTo({top:savedY,behavior:'instant'}));
+    },3000);
+  };
+
+  // انتظر تحميل الصور
+  const imgs=track.querySelectorAll('img');
+  let loaded=0;
+  if(!imgs.length){ setTimeout(startSlider,500); }
+  else {
+    imgs.forEach(img=>{
+      const done=()=>{ loaded++; if(loaded>=imgs.length) startSlider(); };
+      if(img.complete) done(); else { img.onload=done; img.onerror=done; }
+    });
+    setTimeout(startSlider,3000); // backup
+  }
 }
 
 function renderAdsList(){
