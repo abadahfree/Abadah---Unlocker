@@ -53,8 +53,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .panel.active{display:block;}
 .cat-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:18px;scrollbar-width:none;width:100%;box-sizing:border-box;}
 .cat-scroll::-webkit-scrollbar{display:none;}
-.cat-btn{flex-shrink:0;padding:8px 15px;background:var(--surface);border:1px solid var(--border);border-radius:30px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.cat-btn{flex-shrink:0;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:30px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
 .cat-btn.active{background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,153,204,0.1));border-color:var(--cyan);color:var(--cyan);}
+.cat-bar{position:sticky;top:56px;z-index:800;background:rgba(8,11,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 16px;margin:0 -16px;display:none;}
+.cat-bar.visible{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.cat-bar::-webkit-scrollbar{display:none;}
 .cat-hdr{grid-column:1/-1;display:flex;align-items:center;gap:9px;padding:9px 0 3px;font-size:0.95rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border);margin-bottom:3px;}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:13px;}
 @media(max-width:480px){.grid{grid-template-columns:1fr;}}
@@ -445,27 +448,20 @@ textarea{resize:vertical;min-height:60px;}
       <div style="display:flex;justify-content:center;gap:5px;margin-top:7px;" id="adsDots"></div>
     </div>
 
-    <div class="sw" style="margin-bottom:13px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="clearTimeout(window._st);window._st=setTimeout(()=>{activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();},200)"></div>
-
-    <!-- Layout: sidebar + grid -->
-    <div style="display:flex;gap:11px;align-items:flex-start;">
-
-      <!-- الخدمات -->
-      <div style="flex:1;min-width:0;">
-        <div class="grid" id="servicesGrid"></div>
-      </div>
-
-      <!-- الفئات عمودية على اليمين -->
-      <div style="display:flex;flex-direction:column;gap:7px;width:110px;flex-shrink:0;position:sticky;top:12px;">
-        <button class="cat-btn active" onclick="setCategory(this,'')" style="width:100%;text-align:center;border-radius:12px;padding:10px 8px;font-size:0.78rem;">🔓 الكل</button>
-        <button class="cat-btn" onclick="setCategory(this,'إيجار أدوات')" style="width:100%;text-align:center;border-radius:12px;padding:10px 8px;font-size:0.78rem;">🔧 إيجار<br>أدوات</button>
-        <button class="cat-btn" onclick="setCategory(this,'تفعيل أدوات')" style="width:100%;text-align:center;border-radius:12px;padding:10px 8px;font-size:0.78rem;">⚡ تفعيل<br>أدوات</button>
-        <button class="cat-btn" onclick="setCategory(this,'خدمات FRP')" style="width:100%;text-align:center;border-radius:12px;padding:10px 8px;font-size:0.78rem;">🛡️ خدمات<br>FRP</button>
-        <button class="cat-btn" onclick="setCategory(this,'خدمات iCloud')" style="width:100%;text-align:center;border-radius:12px;padding:10px 8px;font-size:0.78rem;">☁️ خدمات<br>iCloud</button>
-        <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')" style="width:100%;text-align:center;border-radius:12px;padding:10px 8px;font-size:0.78rem;">👤 خدمات<br>حسابات</button>
-      </div>
-
+    <!-- شريط الفئات الأفقي -->
+    <div class="cat-bar" id="catBar">
+      <button class="cat-btn active" onclick="setCategory(this,'')">🔓 الكل</button>
+      <button class="cat-btn" onclick="setCategory(this,'إيجار أدوات')">🔧 إيجار أدوات</button>
+      <button class="cat-btn" onclick="setCategory(this,'تفعيل أدوات')">⚡ تفعيل أدوات</button>
+      <button class="cat-btn" onclick="setCategory(this,'خدمات FRP')">🛡️ خدمات FRP</button>
+      <button class="cat-btn" onclick="setCategory(this,'خدمات iCloud')">☁️ خدمات iCloud</button>
+      <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')">👤 خدمات حسابات</button>
     </div>
+
+    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="clearTimeout(window._st);window._st=setTimeout(()=>{activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();},200)"></div>
+
+    <!-- الخدمات - عمود واحد عريض -->
+    <div class="grid" id="servicesGrid"></div>
   </div>
 
   <!-- ACCOUNT -->
@@ -1673,6 +1669,9 @@ window.switchTab = t => {
     const tabName=match?match[1]:(oc.includes('askPin')?'admin':null);
     b.classList.toggle('active', tabName===t);
   });
+  // إظهار/إخفاء شريط الفئات
+  const catBar=document.getElementById('catBar');
+  if(catBar) catBar.classList.toggle('visible', t==='services');
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   const p=document.getElementById('panel-'+t);
   if(p) p.classList.add('active');
