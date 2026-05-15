@@ -306,38 +306,6 @@ textarea{resize:vertical;min-height:60px;}
 
 <!-- MAIN APP -->
 <div id="mainApp" style="display:none;">
-
-<!-- TOP NAVBAR -->
-<div id="topNavbar" style="position:sticky;top:0;z-index:500;background:rgba(8,11,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 16px;">
-  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px;gap:10px;">
-
-    <!-- Logo -->
-    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-      <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🔓</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:0.78rem;font-weight:900;color:var(--text);" id="navTitle">ABADAH</div>
-    </div>
-
-    <!-- Search Bar -->
-    <div style="flex:1;max-width:220px;position:relative;">
-      <input type="text" id="navSearch" placeholder="🔍 ابحث عن خدمة..."
-        style="width:100%;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:20px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.78rem;outline:none;"
-        oninput="navSearchFunc(this.value)"
-        onfocus="this.style.borderColor='var(--cyan)'"
-        onblur="this.style.borderColor='var(--border)'">
-    </div>
-
-    <!-- Nav Links -->
-    <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-      <button onclick="switchTab('services')" style="padding:6px 10px;background:transparent;border:none;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;border-radius:7px;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,212,255,0.08)';this.style.color='var(--cyan)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">الخدمات</button>
-      <button onclick="switchTab('payment')" style="padding:6px 10px;background:transparent;border:none;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;border-radius:7px;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,212,255,0.08)';this.style.color='var(--cyan)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">الدفع</button>
-
-      <!-- Currency Badge -->
-      <div id="navCurrency" style="padding:5px 9px;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.2);border-radius:20px;font-size:0.72rem;color:var(--gold);font-weight:700;cursor:pointer;" onclick="switchTab('payment')">💵 LYD</div>
-    </div>
-
-  </div>
-</div>
-
 <div class="wrap">
 
   <!-- HERO - Landing Page -->
@@ -1618,6 +1586,7 @@ function updateUserBar(){
     const me=clients.find(c=>c.fid===currentUser.fid);
     const cur=me?.currency||'LYD';
     const balLYD=me?.balance||0;
+    // دائماً نحسب USDT من الدينار باستخدام سعر الصرف الحالي
     const balUSDT=usdtRate>0?parseFloat((balLYD/usdtRate).toFixed(2)):0;
     const balLabel=cur==='USDT'?`${balUSDT.toFixed(2)} USDT`:`${balLYD.toLocaleString('ar-LY')} د.ل`;
     document.getElementById('uBal').textContent=`رصيد: ${balLabel}`;
@@ -1625,28 +1594,10 @@ function updateUserBar(){
     document.getElementById('profEmail').textContent=currentUser.email||'';
     document.getElementById('profPhone').textContent=currentUser.phone||'';
     document.getElementById('profBal').textContent=balLabel;
-    // تحديث العملة في الـ navbar
-    const navCur = document.getElementById('navCurrency');
-    if(navCur) navCur.textContent = cur==='USDT' ? '💵 USDT' : '💵 LYD';
   } else {
     document.getElementById('uBal').textContent='مسؤول النظام';
-    const navCur = document.getElementById('navCurrency');
-    if(navCur) navCur.textContent = '💵 LYD';
   }
-  // تحديث اسم الموقع في navbar
-  const navTitle = document.getElementById('navTitle');
-  if(navTitle && siteSettings?.name) navTitle.textContent = siteSettings.name.split(' ')[0].toUpperCase();
 }
-
-window.navSearchFunc = q => {
-  // البحث في الخدمات
-  const searchSvc = document.getElementById('searchSvc');
-  if(searchSvc){ searchSvc.value = q; }
-  if(q.length > 0){
-    switchTab('services');
-    renderServices();
-  }
-};
 
 // ===== STATS =====
 function updateStats(){
