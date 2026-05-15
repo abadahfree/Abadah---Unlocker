@@ -1428,14 +1428,17 @@ function renderAdsSlider(){
   let cur=0;
   window.goToAd=(i)=>{
     cur=i;
-    const slideW=track.offsetWidth+10;
-    track.scrollTo({left:slideW*i,behavior:'smooth'});
+    const slides=track.querySelectorAll('.ad-slide');
+    if(slides[i]) slides[i].scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'});
     ads.forEach((_,j)=>{const d=document.getElementById('dot-'+j);if(d)d.style.background=j===i?'var(--cyan)':'var(--border)';});
   };
-  window._adsInterval=setInterval(()=>{
-    cur=(cur+1)%ads.length;
-    window.goToAd(cur);
-  },3000);
+  // نبدأ بعد ثانية عشان يكتمل التحميل
+  setTimeout(()=>{
+    window._adsInterval=setInterval(()=>{
+      cur=(cur+1)%ads.length;
+      window.goToAd(cur);
+    },2500);
+  },1500);
 }
 
 function renderAdsList(){
