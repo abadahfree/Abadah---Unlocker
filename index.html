@@ -425,7 +425,7 @@ textarea{resize:vertical;min-height:60px;}
         <span style="color:var(--muted);font-size:0.8rem;">🔍</span>
         <input type="text" id="searchSvc" placeholder="ابحث..." 
           style="background:none;border:none;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.82rem;width:120px;outline:none;"
-          oninput="switchTab('services');activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();">
+          oninput="(function(){const p=document.getElementById('panel-services');if(p&&!p.classList.contains('active')){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));p.classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>{const oc=b.getAttribute('onclick')||'';b.classList.toggle('active',oc.includes("switchTab('services')"));});const cb=document.getElementById('catBar');if(cb)cb.classList.add('visible');}activeCat='';document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));const fb=document.querySelector('.cat-btn');if(fb)fb.classList.add('active');renderServices();})();">
       </div>
 
       <!-- أزرار تسجيل الدخول -->
