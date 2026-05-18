@@ -148,6 +148,8 @@ textarea{resize:vertical;min-height:60px;}
 .rating-stars span.active,.rating-stars span:hover{opacity:1;}
 .top-client-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
 .top-client-row:last-child{border-bottom:none;}
+.lang-btn{padding:5px 10px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}
+.lang-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,0.08);}
 .ord-mini{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;animation:slideIn 0.3s ease both;}
 .ord-mini:hover{border-color:rgba(0,212,255,0.3);transform:translateX(-2px);}
 .ord-mini.pending{border-right:3px solid var(--gold);}
@@ -409,6 +411,12 @@ textarea{resize:vertical;min-height:60px;}
       <div class="site-logo" onclick="switchTab('services')">
         <div class="site-logo-ic" id="headerIcon">🔓</div>
         <div class="site-logo-txt" id="headerTitle">ABADAH UNLOCKER</div>
+      </div>
+
+      <!-- زر اللغة -->
+      <div style="display:flex;gap:4px;margin-left:8px;flex-shrink:0;">
+        <button class="lang-btn active" onclick="setLang('ar')" id="btnAr">ع</button>
+        <button class="lang-btn" onclick="setLang('en')" id="btnEn">EN</button>
       </div>
 
       <!-- قائمة التنقل -->
@@ -1247,7 +1255,18 @@ function loadRealtime(){
     if(currentUser?.isAdmin) updateDashboard();
   });
   onSnapshot(query(ordCol, orderBy('createdAt','desc')), snap=>{
-    orders=snap.docs.map(d=>({...d.data(),fid:d.id}));
+    const newOrders=snap.docs.map(d=>({...d.data(),fid:d.id}));
+    // صوت إشعار عند وصول طلب جديد للمسؤول
+    if(currentUser?.isAdmin && _lastOrderCount>=0 && newOrders.length>_lastOrderCount){
+      playNotifSound();
+      // إشعار المتصفح
+      if(Notification.permission==='granted'){
+        const newOrd=newOrders[0];
+        new Notification('🔔 طلب جديد - Abadah Unlocker',{body:`${newOrd?.serviceName} - ${newOrd?.clientName}`,tag:'new-order'});
+      }
+    }
+    _lastOrderCount = newOrders.length;
+    orders=newOrders;
     renderMyOrders(); renderMyTransactions(); renderAllOrders();
     if(currentUser?.isAdmin) updateDashboard();
   });
@@ -3198,6 +3217,86 @@ async function renderDebts(){
         </div>
       </div>
     </div>`).join('');
+}
+
+// ===== اللغة =====
+let currentLang = localStorage.getItem('lang') || 'ar';
+
+const translations = {
+  ar: {
+    services: 'الخدمات', account: 'حسابي', payment: 'الدفع',
+    files: 'ملفات', dashboard: 'لوحة التحكم', clients: 'الزبائن',
+    charges: 'الشحن', orders: 'الطلبات', debts: 'الديون', admin: '⚙️ الإدارة',
+    search: 'ابحث...', login: '🔒 دخول', register: '📝 تسجيل',
+    logout: '← خروج', balance: 'رصيد', orderBtn: 'اطلب الخدمة',
+    pending: 'قيد المراجعة', processing: 'قيد المعالجة', completed: 'مكتمل', rejected: 'مرفوض',
+    noServices: 'لا توجد خدمات', loading: 'جاري التحميل...',
+    hero: 'ABADAH UNLOCKER', heroSub: 'Professional IMEI & Mobile Services',
+    browseBtn: '⚙️ تصفح الخدمات', payBtn: '💳 الدفع',
+  },
+  en: {
+    services: 'Services', account: 'My Account', payment: 'Payment',
+    files: 'Files', dashboard: 'Dashboard', clients: 'Clients',
+    charges: 'Charges', orders: 'Orders', debts: 'Debts', admin: '⚙️ Admin',
+    search: 'Search...', login: '🔒 Login', register: '📝 Register',
+    logout: '← Logout', balance: 'Balance', orderBtn: 'Order Now',
+    pending: 'Pending', processing: 'Processing', completed: 'Completed', rejected: 'Rejected',
+    noServices: 'No services found', loading: 'Loading...',
+    hero: 'ABADAH UNLOCKER', heroSub: 'Professional IMEI & Mobile Services',
+    browseBtn: '⚙️ Browse Services', payBtn: '💳 Payment',
+  }
+};
+
+function t(key){ return translations[currentLang]?.[key] || translations.ar[key] || key; }
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  // تحديث اتجاه الصفحة
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang==='en' ? 'ltr' : 'rtl';
+  // تحديث أزرار اللغة
+  document.getElementById('btnAr')?.classList.toggle('active', lang==='ar');
+  document.getElementById('btnEn')?.classList.toggle('active', lang==='en');
+  // تحديث النصوص
+  applyTranslations();
+  renderServices();
+}
+
+function applyTranslations(){
+  const nav = document.querySelectorAll('.nav-btn');
+  const navKeys = ['services','account','payment','files'];
+  // تحديث خانة البحث
+  const s=document.getElementById('searchSvc');
+  if(s) s.placeholder=t('search');
+  // تحديث أزرار الهيدر
+  const loginBtns=document.querySelectorAll('#headerGuestBtns button');
+  if(loginBtns[0]) loginBtns[0].textContent=t('login');
+  if(loginBtns[1]) loginBtns[1].textContent=t('register');
+}
+
+// تطبيق اللغة عند التحميل
+document.addEventListener('DOMContentLoaded',()=>{
+  setLang(currentLang);
+});
+
+// ===== صوت الإشعار =====
+let _lastOrderCount = -1;
+function playNotifSound(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1100, ctx.currentTime+0.1);
+    osc.frequency.setValueAtTime(880, ctx.currentTime+0.2);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime+0.5);
+  }catch{}
 }
 
 // ===== تيليغرام =====
