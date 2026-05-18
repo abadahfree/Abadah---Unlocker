@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#080b12">
 <link rel="manifest" id="manifestLink">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#080b12;--surface:#0d1120;--card:#121826;--border:#1e2a3e;--cyan:#00d4ff;--cyan2:#0099cc;--gold:#f5c842;--green:#00e676;--red:#ff4444;--muted:#5a6a82;--text:#e8f0fe;--text2:#a0b0c8;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -19,7 +19,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 @keyframes modalIn{from{opacity:0;transform:scale(0.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}@keyframes loadBar{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}@keyframes loadBar{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
 #loadingScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;}
 .screen{position:fixed;inset:0;background:var(--bg);z-index:990;display:flex;align-items:center;justify-content:center;padding:16px;}
@@ -249,15 +249,25 @@ textarea{resize:vertical;min-height:60px;}
 <!-- LOADING -->
 <div id="loadingScreen" style="background:var(--bg);">
   <div style="text-align:center;">
-    <!-- أيقونة 🌐 -->
-    <div style="font-size:5rem;margin-bottom:18px;animation:spin 4s linear infinite;display:inline-block;">🌐</div>
-    <!-- الاسم بخط جميل -->
-    <div style="margin-bottom:6px;">
-      <span style="font-family:'Rajdhani','Orbitron',sans-serif;font-size:2.2rem;font-weight:700;color:#fff;letter-spacing:4px;text-shadow:0 0 20px rgba(0,212,255,0.5);">ABADAH</span>
-      <span style="font-family:'Rajdhani','Orbitron',sans-serif;font-size:2.2rem;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:4px;"> UNLOCKER</span>
+    <!-- SVG دائرة -->
+    <div style="animation:float 2s ease-in-out infinite;display:inline-block;margin-bottom:16px;">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00d4ff"/>
+            <stop offset="100%" stop-color="#f5c842"/>
+          </linearGradient>
+        </defs>
+        <circle cx="45" cy="45" r="38" fill="none" stroke="url(#g1)" stroke-width="2.5"/>
+        <circle cx="45" cy="45" r="28" fill="url(#g1)" opacity="0.08"/>
+        <text x="45" y="55" text-anchor="middle" font-size="28" fill="url(#g1)">🔓</text>
+      </svg>
     </div>
-    <div style="color:var(--muted);font-size:0.72rem;margin-bottom:24px;letter-spacing:5px;text-transform:uppercase;">Professional Services</div>
-    <div style="width:160px;height:2px;background:var(--border);border-radius:10px;margin:0 auto;overflow:hidden;">
+    <!-- خط منفصل -->
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.85rem;letter-spacing:7px;color:#00d4ff;margin-bottom:4px;">ABADAH</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:1.7rem;font-weight:900;background:linear-gradient(90deg,#00d4ff,#f5c842);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;margin-bottom:4px;">UNLOCKER</div>
+    <div style="color:var(--muted);font-size:0.65rem;letter-spacing:5px;margin-bottom:22px;">PROFESSIONAL SERVICES</div>
+    <div style="width:140px;height:2px;background:var(--border);border-radius:10px;margin:0 auto;overflow:hidden;">
       <div style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:10px;animation:loadBar 1.5s ease-in-out infinite;"></div>
     </div>
   </div>
@@ -3246,11 +3256,7 @@ const translations = {
     lyd: 'دينار ليبي - رقمي',
     raqmiDesc: 'التحويل عبر تطبيق رقمي',
     payBtn: '💳 ادفع',
-    payInstructions: '📌 طريقة الشحن:
-١. اختر طريقة الدفع المناسبة
-٢. أرسل المبلغ على العنوان أو الرقم
-٣. أرسل إيصال التحويل على واتساب
-٤. سيُشحن رصيدك فوراً ✅',
+    payInstructions: '📌 طريقة الشحن: ١. اختر طريقة الدفع المناسبة ٢. أرسل المبلغ على العنوان أو الرقم ٣. أرسل إيصال التحويل على واتساب ٤. سيُشحن رصيدك فوراً ✅',
     sendReceipt: 'أرسل الإيصال على واتساب',
   },
   en: {
@@ -3271,11 +3277,7 @@ const translations = {
     lyd: 'Libyan Dinar - Raqmi',
     raqmiDesc: 'Transfer via Raqmi app',
     payBtn: '💳 Pay',
-    payInstructions: '📌 How to charge:
-1. Choose payment method
-2. Send amount to address or number
-3. Send receipt on WhatsApp
-4. Balance will be charged instantly ✅',
+    payInstructions: '📌 How to charge: 1. Choose payment method 2. Send amount to address or number 3. Send receipt on WhatsApp 4. Balance will be charged instantly ✅',
     sendReceipt: 'Send Receipt on WhatsApp',
   }
 };
