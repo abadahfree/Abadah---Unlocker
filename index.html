@@ -3249,7 +3249,7 @@ const translations = {
 
 function t(key){ return translations[currentLang]?.[key] || translations.ar[key] || key; }
 
-function setLang(lang){
+window.setLang = function(lang){
   currentLang = lang;
   localStorage.setItem('lang', lang);
   // تحديث اتجاه الصفحة
@@ -3262,7 +3262,7 @@ function setLang(lang){
   // تحديث النصوص
   applyTranslations();
   renderServices();
-}
+};
 
 function applyTranslations(){
   // ترجمة كل العناصر بـ data-i18n
