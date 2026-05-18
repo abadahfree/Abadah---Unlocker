@@ -249,10 +249,31 @@ textarea{resize:vertical;min-height:60px;}
 <!-- LOADING -->
 <div id="loadingScreen" style="background:var(--bg);">
   <div style="text-align:center;">
-    <div style="font-size:4rem;margin-bottom:16px;animation:blink 1.5s infinite;">🔓</div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;">ABADAH UNLOCKER</div>
-    <div style="color:var(--muted);font-size:0.8rem;margin-bottom:24px;">جاري التحميل...</div>
-    <div style="width:120px;height:3px;background:var(--border);border-radius:10px;margin:0 auto;overflow:hidden;">
+    <!-- أيقونة قفل SVG احترافية -->
+    <div style="margin-bottom:20px;animation:blink 2s infinite;">
+      <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00d4ff"/>
+            <stop offset="100%" style="stop-color:#f5c842"/>
+          </linearGradient>
+        </defs>
+        <!-- جسم القفل -->
+        <rect x="20" y="45" width="60" height="45" rx="8" fill="url(#lockGrad)" opacity="0.9"/>
+        <!-- حلقة القفل -->
+        <path d="M32 45 V32 C32 18 68 18 68 32 V45" stroke="url(#lockGrad)" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <!-- ثقب القفل -->
+        <circle cx="50" cy="67" r="7" fill="rgba(0,0,0,0.4)"/>
+        <rect x="47" y="67" width="6" height="10" rx="3" fill="rgba(0,0,0,0.4)"/>
+      </svg>
+    </div>
+    <!-- الاسم بتصميم جديد -->
+    <div style="margin-bottom:6px;">
+      <span style="font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;color:#fff;letter-spacing:2px;">ABADAH</span>
+      <span style="font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;"> UNLOCKER</span>
+    </div>
+    <div style="color:var(--muted);font-size:0.78rem;margin-bottom:24px;letter-spacing:3px;">PROFESSIONAL SERVICES</div>
+    <div style="width:160px;height:2px;background:var(--border);border-radius:10px;margin:0 auto;overflow:hidden;">
       <div style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:10px;animation:loadBar 1.5s ease-in-out infinite;"></div>
     </div>
   </div>
