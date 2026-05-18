@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:60px;}
         </div>
         <p style="color:var(--text2);font-size:0.76rem;line-height:1.6;margin-bottom:16px;">Unlock, repair, and service your mobile devices with professional GSM solutions. Fast delivery and competitive prices.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button onclick="switchTab('services')" style="padding:9px 16px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border:none;border-radius:9px;color:#000;font-family:'Tajawal',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;">⚙️ تصفح الخدمات</button>
+          <button onclick="switchTab('services')" style="padding:9px 16px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border:none;border-radius:9px;color:#000;font-family:'Tajawal',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;" data-i18n="browseBtn">⚙️ تصفح الخدمات</button>
           <button onclick="switchTab('payment')" style="padding:9px 14px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.8rem;cursor:pointer;">💳 الدفع</button>
         </div>
 
@@ -399,7 +399,7 @@ textarea{resize:vertical;min-height:60px;}
     </div>
     <div id="guestBtns" style="display:none;gap:6px;">
       <button onclick="showLogin()" style="padding:6px 13px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;color:var(--cyan);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;font-weight:700;">🔓 دخول</button>
-      <button onclick="showRegister()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">📝 تسجيل</button>
+      <button onclick="showRegister()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;" data-i18n="register">📝 تسجيل</button>
     </div>
     <button id="logoutBtn" onclick="doLogout()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">خروج ←</button>
   </div>
@@ -421,15 +421,15 @@ textarea{resize:vertical;min-height:60px;}
 
       <!-- قائمة التنقل -->
       <nav class="site-nav" id="mainTabs">
-        <button class="nav-btn active" onclick="switchTab('services')">الخدمات</button>
-        <button class="nav-btn" onclick="switchTab('account')" id="navAccount">حسابي</button>
-        <button class="nav-btn" onclick="switchTab('payment')">الدفع</button>
-        <button class="nav-btn" onclick="switchTab('files')">ملفات</button>
-        <button class="nav-btn" id="dashTab" onclick="switchTab('dashboard')" style="display:none;">لوحة التحكم</button>
-        <button class="nav-btn" id="clientsTab" onclick="switchTab('clients')" style="display:none;">الزبائن</button>
-        <button class="nav-btn" id="chargesTab" onclick="switchTab('charges')" style="display:none;">الشحن</button>
-        <button class="nav-btn" id="ordersTab" onclick="switchTab('orders')" style="display:none;">الطلبات</button>
-        <button class="nav-btn" id="debtTab" onclick="switchTab('debt')" style="display:none;">الديون</button>
+        <button class="nav-btn active" onclick="switchTab('services')" data-i18n="services">الخدمات</button>
+        <button class="nav-btn" onclick="switchTab('account')" id="navAccount" data-i18n="account">حسابي</button>
+        <button class="nav-btn" onclick="switchTab('payment')" data-i18n="payment">الدفع</button>
+        <button class="nav-btn" onclick="switchTab('files')" data-i18n="files">ملفات</button>
+        <button class="nav-btn" id="dashTab" onclick="switchTab('dashboard')" style="display:none;" data-i18n="dashboard">لوحة التحكم</button>
+        <button class="nav-btn" id="clientsTab" onclick="switchTab('clients')" style="display:none;" data-i18n="clients">الزبائن</button>
+        <button class="nav-btn" id="chargesTab" onclick="switchTab('charges')" style="display:none;" data-i18n="charges">الشحن</button>
+        <button class="nav-btn" id="ordersTab" onclick="switchTab('orders')" style="display:none;" data-i18n="orders">الطلبات</button>
+        <button class="nav-btn" id="debtTab" onclick="switchTab('debt')" style="display:none;" data-i18n="debts">الديون</button>
         <button class="nav-btn" id="adminTab" onclick="askPin()" style="display:none;">⚙️ الإدارة</button>
       </nav>
 
@@ -440,8 +440,8 @@ textarea{resize:vertical;min-height:60px;}
           <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(168,85,247,0.15));border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;">👤</div>
         </div>
         <div id="headerGuestBtns" style="display:flex;gap:6px;">
-          <button onclick="showLogin()" style="padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.76rem;cursor:pointer;">🔒 دخول</button>
-          <button onclick="showRegister()" style="padding:6px 12px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border:none;border-radius:8px;color:#000;font-family:'Tajawal',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;">📝 تسجيل</button>
+          <button onclick="showLogin()" style="padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.76rem;cursor:pointer;" data-i18n="login">🔒 دخول</button>
+          <button onclick="showRegister()" style="padding:6px 12px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border:none;border-radius:8px;color:#000;font-family:'Tajawal',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;" data-i18n="register">📝 تسجيل</button>
         </div>
       </div>
     </div>
@@ -3255,6 +3255,7 @@ function setLang(lang){
   // تحديث اتجاه الصفحة
   document.documentElement.lang = lang;
   document.documentElement.dir = lang==='en' ? 'ltr' : 'rtl';
+  document.body.style.fontFamily = lang==='en' ? "'Orbitron', 'Consolas', sans-serif" : "'Tajawal', sans-serif";
   // تحديث أزرار اللغة
   document.getElementById('btnAr')?.classList.toggle('active', lang==='ar');
   document.getElementById('btnEn')?.classList.toggle('active', lang==='en');
@@ -3264,15 +3265,18 @@ function setLang(lang){
 }
 
 function applyTranslations(){
-  const nav = document.querySelectorAll('.nav-btn');
-  const navKeys = ['services','account','payment','files'];
-  // تحديث خانة البحث
+  // ترجمة كل العناصر بـ data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    if(translations[currentLang]?.[key]) el.textContent=translations[currentLang][key];
+  });
+  // البحث
   const s=document.getElementById('searchSvc');
   if(s) s.placeholder=t('search');
-  // تحديث أزرار الهيدر
-  const loginBtns=document.querySelectorAll('#headerGuestBtns button');
-  if(loginBtns[0]) loginBtns[0].textContent=t('login');
-  if(loginBtns[1]) loginBtns[1].textContent=t('register');
+  // Hero subtitle
+  const heroSub=document.querySelector('#heroSection p');
+  if(heroSub&&currentLang==='en') heroSub.textContent='Unlock, repair, and service your mobile devices with professional GSM solutions.';
+  else if(heroSub) heroSub.textContent='خدمات فك القفل واصلاح الأجهزة المحمولة باحترافية.';
 }
 
 // تطبيق اللغة عند التحميل
