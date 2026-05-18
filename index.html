@@ -143,6 +143,11 @@ textarea{resize:vertical;min-height:60px;}
 .ord-full.completed{border-color:rgba(0,230,118,0.25);}
 .ord-full.rejected{border-color:rgba(255,68,68,0.25);}
 .ord-act-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.rating-stars{display:flex;gap:6px;justify-content:center;margin:8px 0;}
+.rating-stars span{font-size:1.5rem;cursor:pointer;opacity:0.35;transition:opacity 0.15s;}
+.rating-stars span.active,.rating-stars span:hover{opacity:1;}
+.top-client-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.top-client-row:last-child{border-bottom:none;}
 .ord-mini{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;animation:slideIn 0.3s ease both;}
 .ord-mini:hover{border-color:rgba(0,212,255,0.3);transform:translateX(-2px);}
 .ord-mini.pending{border-right:3px solid var(--gold);}
@@ -647,10 +652,16 @@ textarea{resize:vertical;min-height:60px;}
       </div>
     </div>
 
-    <!-- الطلبات الأخيرة -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
-      <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;">Recent Orders</div>
-      <div id="dashRecentOrders"></div>
+    <!-- الطلبات الأخيرة + أكثر الزبائن -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;">Recent Orders</div>
+        <div id="dashRecentOrders"></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;">🏆 أكثر الزبائن طلباً</div>
+        <div id="topClientsBox"></div>
+      </div>
     </div>
 
   </div>
@@ -2493,6 +2504,33 @@ function renderMyTransactions(){
 
 
 // ===== نافذة تفاصيل الطلب =====
+// ===== التقييم =====
+window.hoverRating=(fid,n)=>document.querySelectorAll(`#rs_${fid} span`).forEach((s,i)=>s.classList.toggle('active',i<n));
+window.resetRating=(fid)=>document.querySelectorAll(`#rs_${fid} span`).forEach(s=>s.classList.remove('active'));
+window.submitRating=async(fid,r)=>{
+  await updateDoc(doc(db,'orders',fid),{rating:r});
+  closeOrdDetail();
+  setTimeout(()=>openOrdDetail(fid),400);
+};
+// ===== أكثر الزبائن =====
+function renderTopClients(){
+  const el=document.getElementById('topClientsBox');
+  if(!el) return;
+  const map={};
+  orders.filter(o=>o.status==='completed').forEach(o=>{
+    if(!map[o.clientFid]) map[o.clientFid]={name:o.clientName,count:0,total:0};
+    map[o.clientFid].count++;
+    map[o.clientFid].total+=(o.total||o.price||0);
+  });
+  const top=Object.values(map).sort((a,b)=>b.count-a.count).slice(0,5);
+  if(!top.length){el.innerHTML='<div style="color:var(--muted);font-size:0.78rem;text-align:center;padding:10px;">لا توجد بيانات</div>';return;}
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  el.innerHTML=top.map((c,i)=>`<div class="top-client-row">
+    <div style="font-size:1.2rem;">${medals[i]||i+1}</div>
+    <div style="flex:1;"><div style="font-size:0.84rem;font-weight:700;">${c.name}</div><div style="font-size:0.7rem;color:var(--muted);">${c.count} طلب</div></div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.8rem;color:var(--gold);">${c.total.toLocaleString('ar-LY')} د.ل</div>
+  </div>`).join('');
+}
 window.closeOrdDetail = () => {
   document.getElementById('ordDetailMo').classList.remove('open');
 };
@@ -2532,6 +2570,13 @@ window.openOrdDetail = (fid) => {
     <button onclick="navigator.clipboard.writeText('${o.result.replace(/'/g,"\'")}').then(()=>this.textContent='✅ تم النسخ!').catch(()=>{})" style="margin-top:8px;padding:6px 14px;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.25);border-radius:8px;color:var(--green);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">📋 نسخ</button>
   </div>`:'';
 
+  const ratingBox=(!currentUser?.isAdmin&&o.status==='completed')?`
+    <div style="background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:12px;margin-top:10px;text-align:center;">
+      <div style="font-size:0.76rem;color:var(--gold);font-weight:700;margin-bottom:6px;">⭐ قيّم الخدمة</div>
+      ${o.rating?`<div>${'⭐'.repeat(o.rating)} (${o.rating}/5)</div>`:`
+        <div class="rating-stars" id="rs_${o.fid}">${[1,2,3,4,5].map(i=>`<span onclick="submitRating('${o.fid}',${i})" onmouseover="hoverRating('${o.fid}',${i})" onmouseout="resetRating('${o.fid}')">⭐</span>`).join('')}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">اضغط للتقييم</div>`}
+    </div>`:'';
   document.getElementById('ordDetailBox').innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <div style="font-size:1rem;font-weight:700;">${o.serviceName}</div>
@@ -2554,6 +2599,7 @@ window.openOrdDetail = (fid) => {
     </div>
     ${extra?`<div style="margin-bottom:12px;">${extra}</div>`:''}
     ${resultBox}
+    ${ratingBox}
     ${actionBtns}
   `;
   document.getElementById('ordDetailMo').classList.add('open');
@@ -2948,6 +2994,9 @@ window.addService=async()=>{
 };
 window.toggleSvc=async fid=>{const s=services.find(x=>x.fid===fid);if(s)await updateDoc(doc(db,'services',fid),{active:!s.active});};
 window.delSvc=async fid=>{if(confirm('حذف هذه الخدمة؟'))await deleteDoc(doc(db,'services',fid));};
+window.changeTag=async(fid,tag)=>{
+  await updateDoc(doc(db,'services',fid),{tag});
+};
 
 window.openEditSvc=fid=>{
   const s=services.find(x=>x.fid===fid);
@@ -3023,6 +3072,12 @@ window.setOrderStatus = async (fid, status) => {
     }
   }
   await updateDoc(doc(db,'orders',fid),{status});
+  // إشعار للزبون
+  const _oc=clients.find(c=>c.fid===order.clientFid);
+  if(_oc?.tgChatId){
+    const _ms={processing:`🔄 طلبك قيد المعالجة\nخدمة: ${order.serviceName}`,rejected:`❌ تم رفض طلبك\nخدمة: ${order.serviceName}\nتم استرجاع ${order.total||order.price} د.ل لرصيدك`};
+    if(_ms[status]) try{await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:_oc.tgChatId,text:_ms[status]})});}catch{}
+  }
   const stTxt={processing:'🔄 قيد المعالجة',rejected:'❌ مرفوض - تم استرجاع المبلغ'};
   await sendTelegram(`📋 *تحديث طلب*\n━━━━━━━━━━\n🛍️ *الخدمة:* ${order.serviceName}\n👤 *الزبون:* ${order.clientName}\n📊 *الحالة الجديدة:* ${stTxt[status]||status}\n💰 *المبلغ:* ${order.total||order.price} د.ل`);
 };
@@ -3253,6 +3308,7 @@ function updateDashboard(){
       </div>`).join('') : '<div style="color:var(--muted);font-size:0.75rem;">لا توجد بيانات</div>';
   }
 
+  renderTopClients();
   // Recent Orders
   const roEl = document.getElementById('dashRecentOrders');
   if(roEl){
