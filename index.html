@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" style="background:#f0f4f8;">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -33,7 +33,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .stat-n{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:var(--cyan);line-height:1;margin-bottom:3px;}
 .stat-l{font-size:0.7rem;color:var(--muted);}
 .tabs{display:none;}
-.site-header{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(8,11,18,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 16px;}
+.site-header{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(255,255,255,0.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 16px;}
 .site-header-inner{display:flex;align-items:center;justify-content:space-between;height:56px;max-width:900px;margin:0 auto;}
 .site-logo{display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none;}
 .site-logo-ic{width:34px;height:34px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;}
@@ -258,56 +258,56 @@ textarea{resize:vertical;min-height:60px;}
   <!-- دائرة FRP -->
   <div style="position:absolute;top:15%;left:8%;width:70px;height:70px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring 3s linear infinite;opacity:0.18;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#8040ff" stroke-width="2.5" stroke-dasharray="90,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-dasharray="90,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.38rem;color:rgba(128,64,255,0.4);letter-spacing:1px;">FRP</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.38rem;color:rgba(14,165,233,0.4);letter-spacing:1px;">FRP</div>
   </div>
   <!-- دائرة MDM -->
   <div style="position:absolute;top:8%;right:10%;width:80px;height:80px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring-r 4s linear infinite;opacity:0.15;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#40c0ff" stroke-width="2.5" stroke-dasharray="70,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="70,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.38rem;color:rgba(64,192,255,0.4);letter-spacing:1px;">MDM</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.38rem;color:rgba(2,132,199,0.4);letter-spacing:1px;">MDM</div>
   </div>
   <!-- دائرة BL -->
   <div style="position:absolute;bottom:25%;left:5%;width:60px;height:60px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring 2s linear infinite;opacity:0.15;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#c080ff" stroke-width="2.5" stroke-dasharray="110,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-dasharray="110,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.35rem;color:rgba(192,128,255,0.4);">BL</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.35rem;color:rgba(14,165,233,0.4);">BL</div>
   </div>
   <!-- دائرة iCloud -->
   <div style="position:absolute;bottom:20%;right:6%;width:75px;height:75px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring-r 5s linear infinite;opacity:0.12;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#8040ff" stroke-width="2.5" stroke-dasharray="80,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-dasharray="80,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(128,64,255,0.35);">iCloud</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(14,165,233,0.35);">iCloud</div>
   </div>
   <!-- دائرة SN -->
   <div style="position:absolute;top:45%;left:2%;width:50px;height:50px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring 2.5s linear infinite;opacity:0.12;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#40c0ff" stroke-width="2" stroke-dasharray="60,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="60,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.32rem;color:rgba(64,192,255,0.35);">SN</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.32rem;color:rgba(2,132,199,0.35);">SN</div>
   </div>
   <!-- دائرة IMEI -->
   <div style="position:absolute;top:40%;right:2%;width:65px;height:65px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring-r 3.5s linear infinite;opacity:0.12;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#c080ff" stroke-width="2" stroke-dasharray="100,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="100,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(192,128,255,0.35);">IMEI</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(14,165,233,0.35);">IMEI</div>
   </div>
   <!-- دائرة ADB صغيرة -->
   <div style="position:absolute;top:70%;left:35%;width:45px;height:45px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring 1.8s linear infinite;opacity:0.1;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#8040ff" stroke-width="2" stroke-dasharray="50,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="50,200" stroke-linecap="round"/>
     </svg>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(128,64,255,0.3);">ADB</div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(14,165,233,0.3);">ADB</div>
   </div>
   <!-- دائرة USB -->
   <div style="position:absolute;top:25%;left:45%;width:55px;height:55px;">
     <svg viewBox="0 0 50 50" style="width:100%;height:100%;animation:spin-ring-r 4.5s linear infinite;opacity:0.1;">
-      <circle cx="25" cy="25" r="20" fill="none" stroke="#40c0ff" stroke-width="2" stroke-dasharray="75,200" stroke-linecap="round"/>
+      <circle cx="25" cy="25" r="20" fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="75,200" stroke-linecap="round"/>
     </svg>
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:0.3rem;color:rgba(64,192,255,0.3);">USB</div>
   </div>
