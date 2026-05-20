@@ -521,109 +521,7 @@ textarea{resize:vertical;min-height:60px;}
     <button id="logoutBtn" onclick="doLogout()" style="padding:6px 13px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Tajawal',sans-serif;font-size:0.78rem;cursor:pointer;">خروج ←</button>
   </div>
 
-  <!-- SITE HEADER -->
-  <!-- Drawer Overlay -->
-<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()" style="display:none;"></div>
-
-<!-- Drawer -->
-<div class="drawer" id="mainDrawer" style="left:-300px;display:block;">
-  <!-- هيدر الـ Drawer -->
-  <div class="drawer-header" id="drawerHeader">
-    <div class="drawer-avatar" id="drawerAvatar">👤</div>
-    <div class="drawer-user">
-      <div class="drawer-name" id="drawerName">مرحباً</div>
-      <div class="drawer-role" id="drawerRole">زائر</div>
-    </div>
-  </div>
-
-  <!-- قسم الخدمات -->
-  <div class="drawer-section">
-    <div class="drawer-section-title">الخدمات</div>
-    <button class="drawer-item active" id="dItem-services" onclick="drawerNav('services')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(14,165,233,0.1);">🔓</div>
-        <span class="drawer-item-text">الخدمات</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-payment" onclick="drawerNav('payment')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(16,185,129,0.1);">💳</div>
-        <span class="drawer-item-text">الدفع</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-files" onclick="drawerNav('files')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(245,158,11,0.1);">📁</div>
-        <span class="drawer-item-text">ملفاتي</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-  </div>
-
-  <div class="drawer-divider"></div>
-
-  <!-- قسم الحساب -->
-  <div class="drawer-section">
-    <div class="drawer-section-title">حسابي</div>
-    <button class="drawer-item" id="dItem-account" onclick="drawerNav('account')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(139,92,246,0.1);">👤</div>
-        <span class="drawer-item-text">ملفي الشخصي</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-  </div>
-
-  <!-- قسم الإدارة (للمسؤول فقط) -->
-  <div class="drawer-divider" id="drawerAdminDiv" style="display:none;"></div>
-  <div class="drawer-section" id="drawerAdminSection" style="display:none;">
-    <div class="drawer-section-title">الإدارة</div>
-    <button class="drawer-item" id="dItem-dashboard" onclick="drawerNav('dashboard')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(14,165,233,0.1);">📊</div>
-        <span class="drawer-item-text">لوحة التحكم</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-clients" onclick="drawerNav('clients')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(16,185,129,0.1);">👥</div>
-        <span class="drawer-item-text">الزبائن</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-orders" onclick="drawerNav('orders')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(245,158,11,0.1);">📋</div>
-        <span class="drawer-item-text">الطلبات</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-charges" onclick="drawerNav('charges')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(239,68,68,0.1);">💸</div>
-        <span class="drawer-item-text">الشحن</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-debts" onclick="drawerNav('debts')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(239,68,68,0.1);">📒</div>
-        <span class="drawer-item-text">الديون</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" onclick="drawerNav('admin')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(139,92,246,0.1);">⚙️</div>
-        <span class="drawer-item-text">الإعدادات</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-  </div>
-</div>
+  
 
 <header class="site-header" id="siteHeader">
     <div class="site-header-inner">
@@ -4211,5 +4109,108 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
   </div>
 </div>
 
+
+<!-- Drawer Overlay -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99998;"></div>
+
+<!-- Drawer -->
+<div id="mainDrawer" style="position:fixed;top:0;left:-310px;width:280px;height:100vh;background:var(--surface);z-index:99999;overflow-y:auto;box-shadow:4px 0 20px rgba(0,0,0,0.5);transition:left 0.3s ease;">
+<div class="drawer-header" id="drawerHeader">
+    <div class="drawer-avatar" id="drawerAvatar">👤</div>
+    <div class="drawer-user">
+      <div class="drawer-name" id="drawerName">مرحباً</div>
+      <div class="drawer-role" id="drawerRole">زائر</div>
+    </div>
+  </div>
+
+  <!-- قسم الخدمات -->
+  <div class="drawer-section">
+    <div class="drawer-section-title">الخدمات</div>
+    <button class="drawer-item active" id="dItem-services" onclick="drawerNav('services')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(14,165,233,0.1);">🔓</div>
+        <span class="drawer-item-text">الخدمات</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" id="dItem-payment" onclick="drawerNav('payment')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(16,185,129,0.1);">💳</div>
+        <span class="drawer-item-text">الدفع</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" id="dItem-files" onclick="drawerNav('files')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(245,158,11,0.1);">📁</div>
+        <span class="drawer-item-text">ملفاتي</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+  </div>
+
+  <div class="drawer-divider"></div>
+
+  <!-- قسم الحساب -->
+  <div class="drawer-section">
+    <div class="drawer-section-title">حسابي</div>
+    <button class="drawer-item" id="dItem-account" onclick="drawerNav('account')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(139,92,246,0.1);">👤</div>
+        <span class="drawer-item-text">ملفي الشخصي</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+  </div>
+
+  <!-- قسم الإدارة (للمسؤول فقط) -->
+  <div class="drawer-divider" id="drawerAdminDiv" style="display:none;"></div>
+  <div class="drawer-section" id="drawerAdminSection" style="display:none;">
+    <div class="drawer-section-title">الإدارة</div>
+    <button class="drawer-item" id="dItem-dashboard" onclick="drawerNav('dashboard')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(14,165,233,0.1);">📊</div>
+        <span class="drawer-item-text">لوحة التحكم</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" id="dItem-clients" onclick="drawerNav('clients')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(16,185,129,0.1);">👥</div>
+        <span class="drawer-item-text">الزبائن</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" id="dItem-orders" onclick="drawerNav('orders')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(245,158,11,0.1);">📋</div>
+        <span class="drawer-item-text">الطلبات</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" id="dItem-charges" onclick="drawerNav('charges')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(239,68,68,0.1);">💸</div>
+        <span class="drawer-item-text">الشحن</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" id="dItem-debts" onclick="drawerNav('debts')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(239,68,68,0.1);">📒</div>
+        <span class="drawer-item-text">الديون</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" onclick="drawerNav('admin')">
+      <div class="drawer-item-left">
+        <div class="drawer-item-icon" style="background:rgba(139,92,246,0.1);">⚙️</div>
+        <span class="drawer-item-text">الإعدادات</span>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+  </div>
+</div>
+</div>
 </body>
 </html>
