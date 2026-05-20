@@ -35,26 +35,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .tabs{display:none;}
 .site-header{position:fixed;top:0;left:0;right:0;z-index:900;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;}
 
-/* ===== Drawer ===== */
-.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99998;opacity:0;pointer-events:none;transition:opacity 0.3s;}
-.drawer-overlay.open{opacity:1;pointer-events:all;}
-.drawer{position:fixed;top:0;left:-310px;width:280px;height:100vh;background:var(--surface);z-index:99999;transition:left 0.35s ease;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,0.5);}
-.drawer.open{left:0;}
-.drawer-header{padding:20px 16px 16px;background:var(--cyan);display:flex;align-items:center;gap:12px;}
-.drawer-avatar{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:2px solid rgba(255,255,255,0.3);}
-.drawer-user{flex:1;}
-.drawer-name{font-size:0.9rem;font-weight:700;color:#fff;}
-.drawer-role{font-size:0.7rem;color:rgba(255,255,255,0.75);margin-top:2px;}
-.drawer-section{padding:8px 0;}
-.drawer-section-title{padding:8px 16px 4px;font-size:0.65rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.drawer-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;transition:background 0.15s;border:none;background:transparent;width:100%;text-align:right;font-family:'Tajawal',sans-serif;}
-.drawer-item:hover{background:rgba(0,0,0,0.04);}
-.drawer-item.active{background:rgba(14,165,233,0.08);border-right:3px solid var(--cyan);}
-.drawer-item-left{display:flex;align-items:center;gap:10px;}
-.drawer-item-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;}
-.drawer-item-text{font-size:0.82rem;font-weight:600;color:var(--text);}
-.drawer-item-arrow{color:var(--muted);font-size:0.7rem;}
-.drawer-divider{height:1px;background:var(--border);margin:4px 0;}
+
 .hamburger{width:36px;height:36px;border-radius:8px;background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
 .hamburger span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:all 0.2s;}
 .site-header-inner{display:flex;align-items:center;justify-content:space-between;height:56px;max-width:900px;margin:0 auto;}
@@ -272,6 +253,71 @@ textarea{resize:vertical;min-height:60px;}
 .svc-status-badge.offline .svc-status-dot{
   background:var(--red);
 }
+
+/* Drawer بسيط */
+#abDrawer{
+  position:fixed;
+  top:0;
+  left:0;
+  width:275px;
+  height:100%;
+  background:#111827;
+  z-index:99999;
+  overflow-y:auto;
+  transform:translateX(-100%);
+  transition:transform 0.3s ease;
+  box-shadow:3px 0 15px rgba(0,0,0,0.5);
+}
+#abDrawer.show{
+  transform:translateX(0);
+}
+#abOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  z-index:99998;
+  display:none;
+}
+#abOverlay.show{
+  display:block;
+}
+.ab-d-hdr{
+  padding:22px 16px 18px;
+  background:var(--cyan,#0ea5e9);
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.ab-d-av{
+  width:48px;height:48px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;
+  border:2px solid rgba(255,255,255,0.4);
+}
+.ab-d-name{font-size:0.9rem;font-weight:700;color:#fff;}
+.ab-d-role{font-size:0.68rem;color:rgba(255,255,255,0.7);margin-top:2px;}
+.ab-d-sec{padding:8px 16px 2px;font-size:0.58rem;font-weight:700;color:#4a6080;letter-spacing:1.5px;text-transform:uppercase;}
+.ab-d-item{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 16px;
+  border:none;background:transparent;
+  width:100%;text-align:right;
+  cursor:pointer;
+  font-family:'Tajawal',sans-serif;
+  font-size:0.82rem;font-weight:600;color:#c0ccdd;
+  border-right:3px solid transparent;
+  transition:background 0.15s;
+}
+.ab-d-item:hover{background:rgba(255,255,255,0.05);}
+.ab-d-item.cur{background:rgba(14,165,233,0.1);border-right-color:#0ea5e9;color:#fff;}
+.ab-d-ic{
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.88rem;
+}
+.ab-d-hr{height:1px;background:rgba(255,255,255,0.07);margin:5px 16px;}
 </style>
 </head>
 <body>
@@ -526,7 +572,7 @@ textarea{resize:vertical;min-height:60px;}
 <header class="site-header" id="siteHeader">
     <div class="site-header-inner">
       <!-- زر الهامبرغر -->
-      <button class="hamburger" onclick="openDrawer()" style="margin-left:8px;">
+      <button class="hamburger" onclick="abOpenDrawer()" style="margin-left:8px;">
         <span></span><span></span><span></span>
       </button>
 
@@ -3382,67 +3428,6 @@ async function renderDebts(){
     </div>`).join('');
 }
 
-// ===== DRAWER =====
-function openDrawer(){
-  const d=document.getElementById('mainDrawer');
-  const o=document.getElementById('drawerOverlay');
-  if(!d){alert('❌ mainDrawer غير موجود!');return;}
-  const bg=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim()||'#111827';
-  d.style.position='fixed';
-  d.style.top='0';
-  d.style.left='0';
-  d.style.width='280px';
-  d.style.height='100vh';
-  d.style.background=bg||'#111827';
-  d.style.zIndex='999999';
-  d.style.overflowY='auto';
-  d.style.boxShadow='4px 0 20px rgba(0,0,0,0.6)';
-  o.style.position='fixed';
-  o.style.inset='0';
-  o.style.top='0';o.style.left='0';o.style.right='0';o.style.bottom='0';
-  o.style.background='rgba(0,0,0,0.6)';
-  o.style.zIndex='999998';
-  o.style.display='block';
-  o.style.opacity='1';
-  o.style.pointerEvents='all';
-  document.body.style.overflow='hidden';
-  // تحديث بيانات المستخدم
-  if(currentUser){
-    document.getElementById('drawerName').textContent = currentUser.name||'المستخدم';
-    document.getElementById('drawerRole').textContent = currentUser.isAdmin?'مسؤول النظام':('رصيد: '+(currentUser.balance||0)+' د.ل');
-    document.getElementById('drawerAvatar').textContent = currentUser.isAdmin?'⚙️':'👤';
-    document.getElementById('drawerHeader').style.background = currentUser.isAdmin?'#1a1a2e':'var(--cyan)';
-    // إظهار قسم الإدارة
-    if(currentUser.isAdmin){
-      document.getElementById('drawerAdminSection').style.display='block';
-      document.getElementById('drawerAdminDiv').style.display='block';
-    }
-  } else {
-    document.getElementById('drawerName').textContent = 'مرحباً بك';
-    document.getElementById('drawerRole').textContent = 'تصفح كزائر';
-    document.getElementById('drawerAvatar').textContent = '👋';
-  }
-}
-function closeDrawer(){
-  const d=document.getElementById('mainDrawer');
-  const o=document.getElementById('drawerOverlay');
-  d.style.left='-310px';
-  o.style.opacity='0';
-  o.style.pointerEvents='none';
-  document.body.style.overflow='';
-  setTimeout(()=>{ o.style.display='none'; },350);
-}
-function drawerNav(tab){
-  closeDrawer();
-  setTimeout(()=>{
-    // تحديث الـ active في الـ Drawer
-    document.querySelectorAll('.drawer-item').forEach(i=>i.classList.remove('active'));
-    const activeItem = document.getElementById('dItem-'+tab);
-    if(activeItem) activeItem.classList.add('active');
-    switchTab(tab);
-  },200);
-}
-
 // ===== اللغة =====
 let currentLang = localStorage.getItem('lang') || 'ar';
 
@@ -4125,107 +4110,86 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
 </div>
 
 
-<!-- Drawer Overlay -->
-<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99998;"></div>
 
-<!-- Drawer -->
-<div id="mainDrawer" style="position:fixed;top:0;left:-310px;width:280px;height:100vh;background:var(--surface);z-index:99999;overflow-y:auto;box-shadow:4px 0 20px rgba(0,0,0,0.5);transition:left 0.3s ease;">
-<div class="drawer-header" id="drawerHeader">
-    <div class="drawer-avatar" id="drawerAvatar">👤</div>
-    <div class="drawer-user">
-      <div class="drawer-name" id="drawerName">مرحباً</div>
-      <div class="drawer-role" id="drawerRole">زائر</div>
+<!-- ===== DRAWER ===== -->
+<div id="abOverlay" onclick="abCloseDrawer()"></div>
+<div id="abDrawer">
+  <div class="ab-d-hdr" id="abDHdr">
+    <div class="ab-d-av" id="abDAv">👤</div>
+    <div>
+      <div class="ab-d-name" id="abDName">مرحباً</div>
+      <div class="ab-d-role" id="abDRole">زائر</div>
     </div>
   </div>
 
-  <!-- قسم الخدمات -->
-  <div class="drawer-section">
-    <div class="drawer-section-title">الخدمات</div>
-    <button class="drawer-item active" id="dItem-services" onclick="drawerNav('services')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(14,165,233,0.1);">🔓</div>
-        <span class="drawer-item-text">الخدمات</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-payment" onclick="drawerNav('payment')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(16,185,129,0.1);">💳</div>
-        <span class="drawer-item-text">الدفع</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-    <button class="drawer-item" id="dItem-files" onclick="drawerNav('files')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(245,158,11,0.1);">📁</div>
-        <span class="drawer-item-text">ملفاتي</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-  </div>
+  <div class="ab-d-sec">الخدمات</div>
+  <button class="ab-d-item cur" onclick="abNav('services')">
+    <div class="ab-d-ic" style="background:rgba(14,165,233,0.15);">🔓</div>الخدمات
+  </button>
+  <button class="ab-d-item" onclick="abNav('payment')">
+    <div class="ab-d-ic" style="background:rgba(16,185,129,0.12);">💳</div>الدفع
+  </button>
+  <button class="ab-d-item" onclick="abNav('files')">
+    <div class="ab-d-ic" style="background:rgba(245,158,11,0.12);">📁</div>ملفاتي
+  </button>
 
-  <div class="drawer-divider"></div>
+  <div class="ab-d-hr"></div>
 
-  <!-- قسم الحساب -->
-  <div class="drawer-section">
-    <div class="drawer-section-title">حسابي</div>
-    <button class="drawer-item" id="dItem-account" onclick="drawerNav('account')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(139,92,246,0.1);">👤</div>
-        <span class="drawer-item-text">ملفي الشخصي</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
-    </button>
-  </div>
+  <div class="ab-d-sec">حسابي</div>
+  <button class="ab-d-item" onclick="abNav('account')">
+    <div class="ab-d-ic" style="background:rgba(139,92,246,0.12);">👤</div>ملفي الشخصي
+  </button>
 
-  <!-- قسم الإدارة (للمسؤول فقط) -->
-  <div class="drawer-divider" id="drawerAdminDiv" style="display:none;"></div>
-  <div class="drawer-section" id="drawerAdminSection" style="display:none;">
-    <div class="drawer-section-title">الإدارة</div>
-    <button class="drawer-item" id="dItem-dashboard" onclick="drawerNav('dashboard')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(14,165,233,0.1);">📊</div>
-        <span class="drawer-item-text">لوحة التحكم</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
+  <div class="ab-d-hr" id="abAdminHr" style="display:none;"></div>
+  <div id="abAdminSec" style="display:none;">
+    <div class="ab-d-sec">الإدارة</div>
+    <button class="ab-d-item" onclick="abNav('dashboard')">
+      <div class="ab-d-ic" style="background:rgba(14,165,233,0.12);">📊</div>لوحة التحكم
     </button>
-    <button class="drawer-item" id="dItem-clients" onclick="drawerNav('clients')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(16,185,129,0.1);">👥</div>
-        <span class="drawer-item-text">الزبائن</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
+    <button class="ab-d-item" onclick="abNav('clients')">
+      <div class="ab-d-ic" style="background:rgba(16,185,129,0.12);">👥</div>الزبائن
     </button>
-    <button class="drawer-item" id="dItem-orders" onclick="drawerNav('orders')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(245,158,11,0.1);">📋</div>
-        <span class="drawer-item-text">الطلبات</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
+    <button class="ab-d-item" onclick="abNav('orders')">
+      <div class="ab-d-ic" style="background:rgba(245,158,11,0.12);">📋</div>الطلبات
     </button>
-    <button class="drawer-item" id="dItem-charges" onclick="drawerNav('charges')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(239,68,68,0.1);">💸</div>
-        <span class="drawer-item-text">الشحن</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
+    <button class="ab-d-item" onclick="abNav('charges')">
+      <div class="ab-d-ic" style="background:rgba(239,68,68,0.12);">💸</div>الشحن
     </button>
-    <button class="drawer-item" id="dItem-debts" onclick="drawerNav('debts')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(239,68,68,0.1);">📒</div>
-        <span class="drawer-item-text">الديون</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
+    <button class="ab-d-item" onclick="abNav('debts')">
+      <div class="ab-d-ic" style="background:rgba(239,68,68,0.12);">📒</div>الديون
     </button>
-    <button class="drawer-item" onclick="drawerNav('admin')">
-      <div class="drawer-item-left">
-        <div class="drawer-item-icon" style="background:rgba(139,92,246,0.1);">⚙️</div>
-        <span class="drawer-item-text">الإعدادات</span>
-      </div>
-      <span class="drawer-item-arrow">›</span>
+    <button class="ab-d-item" onclick="abNav('admin')">
+      <div class="ab-d-ic" style="background:rgba(139,92,246,0.12);">⚙️</div>الإعدادات
     </button>
   </div>
 </div>
-</div>
+
+<script>
+function abOpenDrawer(){
+  document.getElementById('abDrawer').classList.add('show');
+  document.getElementById('abOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+  // تحديث بيانات المستخدم
+  if(typeof currentUser !== 'undefined' && currentUser){
+    document.getElementById('abDName').textContent = currentUser.name || 'المستخدم';
+    document.getElementById('abDRole').textContent = currentUser.isAdmin ? 'مسؤول النظام' : 'رصيد: '+(currentUser.balance||0)+' د.ل';
+    document.getElementById('abDAv').textContent = currentUser.isAdmin ? '⚙️' : '👤';
+    if(currentUser.isAdmin){
+      document.getElementById('abAdminSec').style.display='block';
+      document.getElementById('abAdminHr').style.display='block';
+    }
+  }
+}
+function abCloseDrawer(){
+  document.getElementById('abDrawer').classList.remove('show');
+  document.getElementById('abOverlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+function abNav(tab){
+  abCloseDrawer();
+  document.querySelectorAll('.ab-d-item').forEach(i=>i.classList.remove('cur'));
+  setTimeout(()=>switchTab(tab), 250);
+}
+</script>
 </body>
 </html>
