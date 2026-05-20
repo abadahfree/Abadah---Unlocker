@@ -36,9 +36,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .site-header{position:fixed;top:0;left:0;right:0;z-index:900;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;}
 
 /* ===== Drawer ===== */
-.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99998;opacity:0;pointer-events:none;transition:opacity 0.3s;}
 .drawer-overlay.open{opacity:1;pointer-events:all;}
-.drawer{position:fixed;top:0;left:-300px;width:270px;height:100%;background:var(--surface);z-index:1001;transition:left 0.3s ease;overflow-y:auto;box-shadow:4px 0 20px rgba(0,0,0,0.3);}
+.drawer{position:fixed;top:0;left:-310px;width:280px;height:100vh;background:var(--surface);z-index:99999;transition:left 0.35s ease;overflow-y:auto;box-shadow:4px 0 30px rgba(0,0,0,0.5);}
 .drawer.open{left:0;}
 .drawer-header{padding:20px 16px 16px;background:var(--cyan);display:flex;align-items:center;gap:12px;}
 .drawer-avatar{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:2px solid rgba(255,255,255,0.3);}
@@ -523,7 +523,7 @@ textarea{resize:vertical;min-height:60px;}
 
   <!-- SITE HEADER -->
   <!-- Drawer Overlay -->
-<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()" style="display:none;"></div>
 
 <!-- Drawer -->
 <div class="drawer" id="mainDrawer" style="left:-300px;display:block;">
@@ -3488,10 +3488,14 @@ async function renderDebts(){
 function openDrawer(){
   const d=document.getElementById('mainDrawer');
   const o=document.getElementById('drawerOverlay');
-  d.style.left='0';
-  d.style.display='block';
-  o.style.opacity='1';
-  o.style.pointerEvents='all';
+  d.style.zIndex='99999';
+  o.style.zIndex='99998';
+  o.style.display='block';
+  setTimeout(()=>{
+    d.style.left='0px';
+    o.style.opacity='1';
+    o.style.pointerEvents='all';
+  },10);
   document.body.style.overflow='hidden';
   // تحديث بيانات المستخدم
   if(currentUser){
@@ -3513,10 +3517,11 @@ function openDrawer(){
 function closeDrawer(){
   const d=document.getElementById('mainDrawer');
   const o=document.getElementById('drawerOverlay');
-  d.style.left='-300px';
+  d.style.left='-310px';
   o.style.opacity='0';
   o.style.pointerEvents='none';
   document.body.style.overflow='';
+  setTimeout(()=>{ o.style.display='none'; },350);
 }
 function drawerNav(tab){
   closeDrawer();
