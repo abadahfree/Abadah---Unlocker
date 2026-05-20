@@ -1762,7 +1762,7 @@ window.doLogin = async () => {
     if(c.status==='pending'){ showPending(); btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
     if(c.banned){ document.getElementById('liErr').textContent='🚫 حسابك محظور. تواصل مع المسؤول.'; btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
     if(c.status==='rejected'){ document.getElementById('liErr').textContent='❌ تم رفض حسابك، تواصل مع المسؤول'; btn.textContent='🔓 تسجيل الدخول'; btn.disabled=false; return; }
-    currentUser={name:c.name,email:c.email,phone:c.phone,fid:cd.id,isAdmin:false};
+    currentUser={name:c.name,email:c.email,phone:c.phone,fid:cd.id,isAdmin:false,balance:c.balance||0};
     localStorage.setItem('au_sess',JSON.stringify(currentUser));
     showApp(); setTimeout(()=>{if(typeof abUpdateDrawer==='function')abUpdateDrawer();},300);
   } catch(e){
@@ -1899,6 +1899,12 @@ function updateUserBar(){
     const balUSDT=usdtRate>0?parseFloat((balLYD/usdtRate).toFixed(2)):0;
     const balLabel=cur==='USDT'?`${balUSDT.toFixed(2)} USDT`:`${balLYD.toLocaleString('ar-LY')} د.ل`;
     document.getElementById('uBal').textContent=`رصيد: ${balLabel}`;
+    // تحديث الـ Drawer بالرصيد الحقيقي
+    if(currentUser && !currentUser.isAdmin){
+      currentUser.balance = me?.balance||0;
+      const dRole=document.getElementById('abDRole');
+      if(dRole) dRole.textContent='رصيد: '+balLabel;
+    }
     document.getElementById('profName').textContent=currentUser.name;
     document.getElementById('profEmail').textContent=currentUser.email||'';
     document.getElementById('profPhone').textContent=currentUser.phone||'';
@@ -4158,7 +4164,7 @@ window.dismissBanner=()=>{document.getElementById('installBanner').classList.rem
 
   <div class="ab-d-hr" id="abAdminHr" style="display:none;"></div>
   <div id="abAdminSec" style="display:none;">
-    <div class="ab-d-sec">الإدارة</div>
+    <div class="ab-d-sec">⚙️ الإدارة</div>
     <button class="ab-d-item" onclick="abNav('dashboard')">
       <div class="ab-d-ic" style="background:rgba(14,165,233,0.12);">📊</div>لوحة التحكم
     </button>
@@ -4239,7 +4245,7 @@ function abOpenDrawer(){
       n.textContent=u.name;
       r.textContent=u.isAdmin?'مسؤول النظام':'رصيد: '+(u.balance||0)+' د.ل';
       a.textContent=u.isAdmin?'⚙️':'👤';
-      if(h) h.style.background=u.isAdmin?'#1e1b4b':'#0ea5e9';
+      if(h) h.style.background=u.isAdmin?'linear-gradient(135deg,#1e1b4b,#2d2464)':'linear-gradient(135deg,#0284c7,#0ea5e9)';
       if(s) s.style.setProperty('display', u.isAdmin?'block':'none', 'important');
       if(hr) hr.style.setProperty('display', u.isAdmin?'block':'none', 'important');
     } else {
