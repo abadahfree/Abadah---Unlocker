@@ -1373,6 +1373,33 @@ function showPending(){ hide('loginScreen'); hide('registerScreen'); show('pendi
 
 function showApp(){
   hide('loginScreen'); hide('registerScreen'); hide('pendingScreen');
+  // تحديث الـ Drawer
+  setTimeout(()=>{
+    const u = currentUser;
+    const nameEl=document.getElementById('abDName');
+    const roleEl=document.getElementById('abDRole');
+    const avEl=document.getElementById('abDAv');
+    const hdrEl=document.getElementById('abDHdr');
+    const admEl=document.getElementById('abAdminSec');
+    const admHr=document.getElementById('abAdminHr');
+    if(!nameEl) return;
+    if(u && u.name){
+      nameEl.textContent=u.name;
+      if(u.isAdmin){
+        roleEl.textContent='مسؤول النظام';
+        avEl.textContent='⚙️';
+        if(hdrEl) hdrEl.style.background='#1e1b4b';
+        if(admEl) admEl.style.display='block';
+        if(admHr) admHr.style.display='block';
+      } else {
+        roleEl.textContent='رصيد: '+(u.balance||0)+' د.ل';
+        avEl.textContent='👤';
+        if(hdrEl) hdrEl.style.background='#0ea5e9';
+        if(admEl) admEl.style.display='none';
+        if(admHr) admHr.style.display='none';
+      }
+    }
+  }, 400);
   show('mainApp','block'); hideLoad();
   const isAdmin = currentUser?.isAdmin;
   document.getElementById('adminTab').style.display = isAdmin ? 'flex' : 'none';
