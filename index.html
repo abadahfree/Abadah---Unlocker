@@ -3497,12 +3497,9 @@ function toggleTheme(){
   applyTheme();
 }
 
-// تطبيق الثيم عند التحميل
+// تطبيق الثيم عند التحميل - فقط من localStorage
 document.addEventListener('DOMContentLoaded', () => {
-  // قراءة تفضيل المستخدم أو نظام التشغيل
-  if(localStorage.getItem('theme') === null){
-    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
+  isDark = localStorage.getItem('theme') === 'dark';
   applyTheme();
 });
 
