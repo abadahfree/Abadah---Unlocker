@@ -642,7 +642,7 @@ textarea{resize:vertical;min-height:60px;}
       <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')" data-i18n-cat="accounts">👤 خدمات حسابات</button>
     </div>
 
-    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="renderServices()"></div>
+    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="doSearch()"></div>
 
     <!-- الخدمات - عمود واحد عريض -->
     <div class="grid" id="servicesGrid"></div>
@@ -1427,7 +1427,7 @@ function loadRealtime(){
     services=snap.docs.map(d=>({...d.data(),fid:d.id}));
     updateStats();
     const q=document.getElementById('searchSvc')?.value||'';
-    renderServices();
+    if(!q) renderServices();
     renderAdmin(); renderLiveStatus();
     // أول تحميل: تأكد إن catBar ظاهر
     if(_firstLoad){
@@ -1474,7 +1474,7 @@ function loadRealtime(){
   onSnapshot(query(toolFoldersCol, orderBy('createdAt','asc')), snap=>{
     toolFolders=snap.docs.map(d=>({...d.data(),fid:d.id}));
     const q=document.getElementById('searchSvc')?.value||'';
-    renderServices();
+    if(!q) renderServices();
     renderToolFoldersAdmin();
   });
 }
@@ -1924,7 +1924,22 @@ function updateStats(){
   document.getElementById('avgS').textContent=avg.toLocaleString('ar-LY');
 }
 
-  // ارسم النتائج فوراً
+function doSearch(){
+  const p=document.getElementById('panel-services');
+  if(p&&!p.classList.contains('active')){
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    document.querySelectorAll('.nav-btn,.tab').forEach(b=>{
+      const oc=b.getAttribute('onclick')||'';
+      b.classList.toggle('active',oc.includes("switchTab('services')"));
+    });
+    const cb=document.getElementById('catBar');
+    if(cb) cb.classList.add('visible');
+  }
+  activeCat='';
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  const fb=document.querySelector('.cat-btn');
+  if(fb) fb.classList.add('active');
   renderServices();
 }
 
