@@ -1927,6 +1927,7 @@ function updateStats(){
 // debounce للبحث
 let searchTimer=null;
 function debouncedSearch(){
+  console.log('debouncedSearch called');
   clearTimeout(searchTimer);
   searchTimer=setTimeout(doSearch, 150);
 }
@@ -1981,6 +1982,7 @@ window.setCategory=(btn,cat)=>{
 function renderServices(){
   const q=(document.getElementById('searchSvc')?.value||'').toLowerCase();
   const grid=document.getElementById('servicesGrid');
+  console.log('renderServices called, q='+q+', grid='+!!grid+', services='+services.length);
   if(!grid) return;
   const cats=[
     {key:'إيجار أدوات',icon:'🔧'},{key:'تفعيل أدوات',icon:'⚡'},
