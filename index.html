@@ -642,7 +642,7 @@ textarea{resize:vertical;min-height:60px;}
       <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')" data-i18n-cat="accounts">👤 خدمات حسابات</button>
     </div>
 
-    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="doSearch()"></div>
+    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="debouncedSearch()"></div>
 
     <!-- الخدمات - عمود واحد عريض -->
     <div class="grid" id="servicesGrid"></div>
@@ -1922,6 +1922,13 @@ function updateStats(){
   document.getElementById('activeS').textContent=services.filter(s=>s.active).length;
   const avg=services.length?Math.round(services.reduce((a,s)=>a+s.price,0)/services.length):0;
   document.getElementById('avgS').textContent=avg.toLocaleString('ar-LY');
+}
+
+// debounce للبحث
+let searchTimer=null;
+function debouncedSearch(){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(doSearch, 250);
 }
 
 function doSearch(){
