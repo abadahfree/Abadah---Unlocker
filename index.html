@@ -1427,7 +1427,7 @@ function loadRealtime(){
     services=snap.docs.map(d=>({...d.data(),fid:d.id}));
     updateStats();
     const q=document.getElementById('searchSvc')?.value||'';
-    if(!q) renderServices();
+    renderServices();
     renderAdmin(); renderLiveStatus();
     // أول تحميل: تأكد إن catBar ظاهر
     if(_firstLoad){
@@ -1474,7 +1474,7 @@ function loadRealtime(){
   onSnapshot(query(toolFoldersCol, orderBy('createdAt','asc')), snap=>{
     toolFolders=snap.docs.map(d=>({...d.data(),fid:d.id}));
     const q=document.getElementById('searchSvc')?.value||'';
-    if(!q) renderServices();
+    renderServices();
     renderToolFoldersAdmin();
   });
 }
@@ -1928,25 +1928,19 @@ function updateStats(){
 let searchTimer=null;
 function debouncedSearch(){
   clearTimeout(searchTimer);
-  searchTimer=setTimeout(doSearch, 250);
+  searchTimer=setTimeout(doSearch, 150);
 }
 
 function doSearch(){
+  // تأكد إن panel-services ظاهر
   const p=document.getElementById('panel-services');
   if(p&&!p.classList.contains('active')){
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
     p.classList.add('active');
-    document.querySelectorAll('.nav-btn,.tab').forEach(b=>{
-      const oc=b.getAttribute('onclick')||'';
-      b.classList.toggle('active',oc.includes("switchTab('services')"));
-    });
     const cb=document.getElementById('catBar');
     if(cb) cb.classList.add('visible');
   }
-  activeCat='';
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
-  const fb=document.querySelector('.cat-btn');
-  if(fb) fb.classList.add('active');
+  // ارسم النتائج فوراً
   renderServices();
 }
 
