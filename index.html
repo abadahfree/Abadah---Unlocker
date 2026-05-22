@@ -642,7 +642,7 @@ textarea{resize:vertical;min-height:60px;}
       <button class="cat-btn" onclick="setCategory(this,'خدمات حسابات')" data-i18n-cat="accounts">👤 خدمات حسابات</button>
     </div>
 
-    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="debouncedSearch()"></div>
+    <div class="sw" style="margin-bottom:13px;margin-top:8px;"><span class="si">🔍</span><input type="text" id="searchSvc" placeholder="ابحث عن خدمة..." oninput="renderServices()"></div>
 
     <!-- الخدمات - عمود واحد عريض -->
     <div class="grid" id="servicesGrid"></div>
@@ -1924,23 +1924,6 @@ function updateStats(){
   document.getElementById('avgS').textContent=avg.toLocaleString('ar-LY');
 }
 
-// debounce للبحث
-let searchTimer=null;
-function debouncedSearch(){
-  console.log('debouncedSearch called');
-  clearTimeout(searchTimer);
-  searchTimer=setTimeout(doSearch, 150);
-}
-
-function doSearch(){
-  // تأكد إن panel-services ظاهر
-  const p=document.getElementById('panel-services');
-  if(p&&!p.classList.contains('active')){
-    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
-    p.classList.add('active');
-    const cb=document.getElementById('catBar');
-    if(cb) cb.classList.add('visible');
-  }
   // ارسم النتائج فوراً
   renderServices();
 }
@@ -1982,7 +1965,6 @@ window.setCategory=(btn,cat)=>{
 function renderServices(){
   const q=(document.getElementById('searchSvc')?.value||'').toLowerCase();
   const grid=document.getElementById('servicesGrid');
-  console.log('renderServices called, q='+q+', grid='+!!grid+', services='+services.length);
   if(!grid) return;
   const cats=[
     {key:'إيجار أدوات',icon:'🔧'},{key:'تفعيل أدوات',icon:'⚡'},
